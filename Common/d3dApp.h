@@ -92,6 +92,15 @@ protected:
 	GameTimer mTimer;
 	
     Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
+    /*
+    前台缓冲区和后台缓冲区构成了交换链（swap chain），在Direct3D中用IDXGISwapChain接口来表示。
+    这个接口不仅存储了前台缓冲区和后台缓冲区两种纹理，而且还提供了修改缓冲区大小（IDXGISwapChain::ResizeBuffers）
+    和呈现缓冲区内容（IDXGISwapChain::Present）的方法。使用两个缓冲区（前台和后台）
+    的情况称为双缓冲（double buffering，亦有译作双重缓冲、双倍缓冲等）。
+    当然，也可以运用更多的缓冲区。例如，使用3个缓冲区就叫作三重缓冲（triple buffering，亦有译作三倍缓冲等[7]）。
+    对于一般的应用来说，使用两个缓冲区就足够了。
+    */
+    // 交换链接口
     Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
     Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
 

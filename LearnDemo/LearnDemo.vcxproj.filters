@@ -36,10 +36,10 @@
     <ClCompile Include="..\Common\MathHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="InitDirect3DApp.cpp">
+    <ClCompile Include="Init Direct3D\InitDirect3DApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BoxApp.cpp">
+    <ClCompile Include="Box\BoxApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -134,8 +134,8 @@
     <ClCompile Include="..\Common\GameTimer.cpp" />
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
-    <ClCompile Include="BoxApp.cpp" />
-    <ClCompile Include="InitDirect3DApp.cpp" />
+    <ClCompile Include="Box\BoxApp.cpp" />
+    <ClCompile Include="Init Direct3D\InitDirect3DApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h" />
