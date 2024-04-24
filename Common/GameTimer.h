@@ -10,13 +10,13 @@ class GameTimer
 public:
 	GameTimer();
 
-	float TotalTime()const; // in seconds
-	float DeltaTime()const; // in seconds
+	float TotalTime()const; // in seconds (用秒作为单位)
+	float DeltaTime()const; // in seconds (用秒作为单位)
 
-	void Reset(); // Call before message loop.
-	void Start(); // Call when unpaused.
-	void Stop();  // Call when paused.
-	void Tick();  // Call every frame.
+	void Reset(); // Call before message loop.  (在开始消息循环之前调用)
+	void Start(); // Call when unpaused.        (解除计时器暂停时调用)
+	void Stop();  // Call when paused.          (暂停计时器时调用)
+	void Tick();  // Call every frame.          (每帧都要调用)
 
 private:
 	double mSecondsPerCount;

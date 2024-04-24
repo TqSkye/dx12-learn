@@ -23,6 +23,10 @@ D3DApp* D3DApp::GetApp()
     return mApp;
 }
 
+/// <summary>
+/// 1．D3DApp：这个构造函数只是简单地将数据成员初始化为默认值。
+/// </summary>
+/// <param name="hInstance"></param>
 D3DApp::D3DApp(HINSTANCE hInstance)
 :	mhAppInst(hInstance)
 {
@@ -31,32 +35,56 @@ D3DApp::D3DApp(HINSTANCE hInstance)
     mApp = this;
 }
 
+/// <summary>
+/// ~D3DApp：这个析构函数用于释放D3DApp中所用的COM接口对象并刷新命令队列。在析构函数中刷新命令队列的原因是：在销毁GPU引用的资源以前，
+/// 必须等待GPU处理完队列中的所有命令。否则，可能造成应用程序在退出时崩溃。
+/// </summary>
 D3DApp::~D3DApp()
 {
 	if(md3dDevice != nullptr)
 		FlushCommandQueue();
 }
 
+/// <summary>
+/// AppInst：简单的存取函数，返回应用程序实例句柄。
+/// </summary>
+/// <returns></returns>
 HINSTANCE D3DApp::AppInst()const
 {
 	return mhAppInst;
 }
 
+/// <summary>
+/// MainWnd：简单的存取函数，返回主窗口句柄。
+/// </summary>
+/// <returns></returns>
 HWND D3DApp::MainWnd()const
 {
 	return mhMainWnd;
 }
 
+/// <summary>
+/// AspectRatio：这个纵横比（亦有译作长宽比、宽高比[45]）定义的是后台缓冲区的宽度与高度之比。第5章会用到这个比值。它的实现比较简单：
+/// </summary>
+/// <returns></returns>
 float D3DApp::AspectRatio()const
 {
 	return static_cast<float>(mClientWidth) / mClientHeight;
 }
 
+/// <summary>
+/// Get4xMsaaState：如果启用4X MSAA就返回true，否则返回false。
+/// </summary>
+/// <returns></returns>
 bool D3DApp::Get4xMsaaState()const
 {
     return m4xMsaaState;
 }
 
+/// <summary>
+/// Set4xMsaaState：开启或禁用4X MSAA功能。
+/// </summary>
+/// <param name="value"></param>
 void D3DApp::Set4xMsaaState(bool value)
 {
     if(m4xMsaaState != value)
@@ -69,6 +97,10 @@ void D3DApp::Set4xMsaaState(bool value)
     }
 }
 
+/// <summary>
+/// Run：这个方法封装了应用程序的消息循环。它使用的是Win32的PeekMessage函数，当没有窗口消息到来时就会处理我们的游戏逻辑部分。该方法的实现可见4.4.3节。
+/// </summary>
+/// <returns></returns>
 int D3DApp::Run()
 {
 	MSG msg = {0};
@@ -78,12 +110,14 @@ int D3DApp::Run()
 	while(msg.message != WM_QUIT)
 	{
 		// If there are Window messages then process them.
+        // 如果有窗口消息就进行处理
 		if(PeekMessage( &msg, 0, 0, 0, PM_REMOVE ))
 		{
             TranslateMessage( &msg );
             DispatchMessage( &msg );
 		}
 		// Otherwise, do animation/game stuff.
+        // 否则就执行动画与游戏的相关逻辑
 		else
         {	
 			mTimer.Tick();
@@ -104,6 +138,19 @@ int D3DApp::Run()
 	return (int)msg.wParam;
 }
 
+/// <summary>
+/// 框架方法:需要重写-Initialize：通过此方法为程序编写初始化代码，例如分配资源、初始化对象和建立3D场景等。
+/// D3DApp类实现的初始化方法会调用InitMainWindow和InitDirect3D，因此，我们在自己实现的初始化派生方法中，
+/// 应当首先像下面那样来调用D3DApp类中的初始化方法：
+/// bool TestApp::Initialize()
+/// {
+///     if (!D3DApp::Initialize())
+///         return false;
+/// 
+///     /* 其他的初始化代码请置于此 */
+/// }
+/// </summary>
+/// <returns></returns>
 bool D3DApp::Initialize()
 {
 	if(!InitMainWindow())
@@ -117,10 +164,31 @@ bool D3DApp::Initialize()
 
 	return true;
 }
+
+/// <summary>
+/// 框架方法:需要重写-CreateRtvAndDsvDescriptorHeaps：此虚函数用于创建应用程序所需的RTV和DSV描述符堆。
+/// 默认的实现是创建一个含有SwapChainBufferCount个RTV描述符的RTV堆（为交换链中的缓冲区而创建），以及具有一个DSV描述符的DSV堆
+/// （为深度/模板缓冲区而创建）。该方法的默认实现足以满足大多数的示例，但是，
+/// 为了使用多渲染目标（multiple render targets）这种高级技术，届时仍将重写此方法。
+/// 
+/// 创建描述符堆
+/// 
+/// </summary>
+/*
+    ComPtr<ID3D12DescriptorHeap> mRtvHeap;
+    ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+    我们需要通过创建描述符堆来存储程序中要用到的描述符/视图（参见4.1.6节）。
+    对此，Direct3D 12 以ID3D12DescriptorHeap接口表示描述符堆，并用ID3D12Device::CreateDescriptorHeap方法来创建它。
+    在本章的示例程序中，我们将为交换链中SwapChainBufferCount个用于渲染数据的缓冲区资源创建对应的渲染目标视图（Render Target View，RTV），
+    并为用于深度测试（depth test）的深度/模板缓冲区资源创建一个深度/模板视图（Depth/Stencil View，DSV）。
+    所以，我们此时需要创建两个描述符堆，其一用来存储SwapChainBufferCount个RTV，
+    而那另一个描述堆则用来存储那1个DSV。现通过下述代码来创建这两个描述符堆：
  
+*/
 void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+    // static const int SwapChainBufferCount = 2;
     rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -138,6 +206,15 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
         &dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }
 
+/// <summary>
+/// 框架方法:需要重写-4．OnResize：当D3DApp::MsgProc函数接收到WM_SIZE消息时便会调用此方法。
+/// 若窗口的大小发生了改变，一些与工作区大小有关的Direct3D属性也需要随之调整。特别是后台缓冲区以及深度/模板缓冲区，
+/// 为了匹配窗口工作区调整后的大小需要对其重新创建。我们可以通过调用IDXGISwapChain::ResizeBuffers方法来调整后台缓冲区的尺寸。
+/// 对于深度/模板缓冲区而言，则需要在销毁后根据新的工作区大小进行重建。另外，渲染目标和深度/模板的视图也应重新创建。
+/// D3DApp类中OnResize方法实现的功能即为调整后台缓冲区和深度/模板缓冲区的尺寸，我们可直接查阅其源代码来研究相关细节。
+/// 除了这些缓冲区以外，依赖于工作区大小的其他属性（如投影矩阵，projection matrix）也要在此做相应的修改。
+/// 由于在调整窗口大小时，客户端代码可能还需执行一些它自己的逻辑代码，因此该方法亦属于框架的一部分。
+/// </summary>
 void D3DApp::OnResize()
 {
 	assert(md3dDevice);
@@ -145,6 +222,7 @@ void D3DApp::OnResize()
     assert(mDirectCmdListAlloc);
 
 	// Flush before changing any resources.
+    // 命令队列围栏
 	FlushCommandQueue();
 
     /*
@@ -168,28 +246,93 @@ void D3DApp::OnResize()
     ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 
 	// Release the previous resources we will be recreating.
+    // 释放之前所创建的交换链，随后再进行重建
 	for (int i = 0; i < SwapChainBufferCount; ++i)
 		mSwapChainBuffer[i].Reset();
     mDepthStencilBuffer.Reset();
 	
 	// Resize the swap chain.
+    // 调整交换链的大小。
     ThrowIfFailed(mSwapChain->ResizeBuffers(
 		SwapChainBufferCount, 
 		mClientWidth, mClientHeight, 
 		mBackBufferFormat, 
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
+    // 偏移至后台缓冲区描述符句柄的索引
 	mCurrBackBuffer = 0;
  
+#pragma region ###Steap_7:创建渲染目标视图###
+    /*
+        void ID3D12Device::CreateRenderTargetView(
+          ID3D12Resource *pResource,
+          const D3D12_RENDER_TARGET_VIEW_DESC *pDesc,
+          D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+        1．pResource：指定用作渲染目标的资源。在上面的例子中是后台缓冲区（即为后台缓冲区创建了一个渲染目标视图）。
+        2．pDesc：指向D3D12_RENDER_TARGET_VIEW_DESC数据结构实例的指针。
+            该结构体描述了资源中元素的数据类型（格式）。
+            如果该资源在创建时已指定了具体格式（即此资源不是无类型格式，not typeless），
+            那么就可以把这个参数设为空指针，表示采用该资源创建时的格式，
+            为它的第一个mipmap层级（后台缓冲区只有一种mipmap层级，
+            有关mipmap的内容将在第9章展开讨论）创建一个视图。
+            由于已经指定了后台缓冲区的格式，因此就将这个参数设置为空指针。
+        3．DestDescriptor：引用所创建渲染目标视图的描述符句柄。
+    */
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (UINT i = 0; i < SwapChainBufferCount; i++)
 	{
+        // 获得交换链内的第i个缓存区
 		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
-		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
-		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
+		// 为此缓冲区创建一个RTV
+        md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+		// 偏移到描述符堆中的下一个缓冲区
+        rtvHeapHandle.Offset(1, mRtvDescriptorSize);
 	}
+#pragma endregion
 
+#pragma region ###Steap_8:创建深度/模板缓冲区及其视图###
+    /*
+        现在来创建程序中所需的深度/模板缓冲区。正如4.1.5节所述，深度缓冲区其实就是一种2D纹理，
+        它存储着离观察者最近的可视对象的深度信息（如果使用了模板，还会附有模板信息）。
+        纹理是一种GPU资源，因此我们要通过填写D3D12_RESOURCE_DESC结构体来描述纹理资源，再用ID3D12Device::CreateCommittedResource方法来创建它。
+        D3D12_RESOURCE_DESC结构体的定义如下:
+        typedef struct D3D12_RESOURCE_DESC
+        {
+          D3D12_RESOURCE_DIMENSION Dimension;
+          UINT64 Alignment; // 对齐
+          UINT64 Width;
+          UINT Height;
+          UINT16 DepthOrArraySize;
+          UINT16 MipLevels;
+          DXGI_FORMAT Format;
+          DXGI_SAMPLE_DESC SampleDesc;
+          D3D12_TEXTURE_LAYOUT Layout;
+          D3D12_RESOURCE_MTSC_FLAG Misc Flags;
+        } D3D12_RESOURCE_DESC;
+        参数解释:
+        1．Dimension：资源的维度，即为下列枚举类型中的成员之一。
+              enum D3D12_RESOURCE_DIMENSION
+              {
+                D3D12_RESOURCE_DIMENSION_UNKNOWN = 0,
+                D3D12_RESOURCE_DIMENSION_BUFFER = 1,
+                D3D12_RESOURCE_DIMENSION_TEXTURE1D = 2,
+                D3D12_RESOURCE_DIMENSION_TEXTURE2D = 3,
+                D3D12_RESOURCE_DIMENSION_TEXTURE3D = 4
+              } D3D12_RESOURCE_DIMENSION;
+        2．Width：以纹素为单位来表示的纹理宽度。对于缓冲区资源来说，此项是缓冲区占用的字节数。
+        3．Height：以纹素为单位来表示的纹理高度。
+        4．DepthOrArraySize：以纹素为单位来表示的纹理深度，或者（对于1D纹理和2D纹理来说）是纹理数组的大小。注意，Direct3D中并不存在3D纹理数组的概念。
+        5．MipLevels：mipmap层级的数量。我们会在第9章讲纹理时介绍mipmap。对于深度/模板缓冲区而言，只能有一个mipmap级别。
+        6．Format：DXGI_FORMAT枚举类型中的成员之一，用于指定纹素的格式。对于深度/模板缓冲区来说，此格式需要从4.1.5节介绍的格式中选择。
+        7．SampleDesc：多重采样的质量级别以及对每个像素的采样次数，详情参见4.1.7节和4.1.8节。
+            先来回顾一下4X MSAA技术：为了存储每个子像素的颜色和深度/模板信息，所用后台缓冲区和深度缓冲区的大小要4倍于屏幕的分辨率。
+            因此，深度/模板缓冲区与渲染目标的多重采样设置一定要相匹配。
+        8．Layout：D3D12_TEXTURE_LAYOUT枚举类型的成员之一，用于指定纹理的布局。我们暂时还不用考虑这个问题，
+            在此将它指定为D3D12_TEXTURE_LAYOUT_UNKNOWN即可。
+        9．Flags：与资源有关的杂项标志。对于一个深度/模板缓冲区资源来说，要将此项指定为D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL[36]。
+    */
     // Create the depth/stencil buffer and view.
+    // 创建深度/模板缓冲区及其视图
     D3D12_RESOURCE_DESC depthStencilDesc;
     depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     depthStencilDesc.Alignment = 0;
@@ -210,6 +353,64 @@ void D3DApp::OnResize()
     depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
+    /*
+        GPU资源都存于堆（heap）中，其本质是具有特定属性的GPU显存块。
+        ID3D12Device::CreateCommittedResource方法将根据我们所提供的属性创建一个资源与一个堆，并把该资源提交到这个堆中。
+        CreateCommittedResource原型:
+        HRESULT ID3D12Device::CreateCommittedResource(
+              const D3D12_HEAP_PROPERTIES *pHeapProperties,
+              D3D12_HEAP_FLAGS HeapFlags,
+              const D3D12_RESOURCE_DESC *pDesc,
+              D3D12_RESOURCE_STATES InitialResourceState,
+              const D3D12_CLEAR_VALUE *pOptimizedClearValue,
+              REFIID riidResource,
+              void **ppvResource);
+        typedef struct D3D12_HEAP_PROPERTIES {
+             D3D12_HEAP_TYPE      Type;
+             D3D12_CPU_PAGE_PROPERTY CPUPageProperty;
+             D3D12_MEMORY_POOL    MemoryPoolPreference;
+             UINT CreationNodeMask;
+             UINT VisibleNodeMask;
+            } D3D12_HEAP_PROPERTIES[37];
+        1．pHeapProperties：（资源欲提交至的）堆所具有的属性。有一些属性是针对高级用法而设。
+            目前只需关心D3D12_HEAP_PROPERTIES中的D3D12_HEAP_TYPE枚举类型这一主要属性，其中的成员列举如下。
+            a） D3D12_HEAP_TYPE_DEFAULT：默认堆（default heap）。向这堆里提交的资源，唯独GPU可以访问。举一个有关深度/模板缓冲区的例子：
+                GPU会读写深度/模板缓冲区，而CPU从不需要访问它，所以深度/模板缓冲区应被放入默认堆中。
+            b）D3D12_HEAP_TYPE_UPLOAD：上传堆（upload heap）。向此堆里提交的都是需要经CPU上传至GPU的资源。
+            c）D3D12_HEAP_TYPE_READBACK：回读堆（read-back heap）。向这种堆里提交的都是需要由CPU读取的资源。
+            d）D3D12_HEAP_TYPE_CUSTOM：此成员应用于高级场景——更多信息可详见MSDN文档。
+        2．HeapFlags：与（资源欲提交至的）堆有关的额外选项标志。通常将它设为D3D12_HEAP_FLAG_NONE[38]。
+        3．pDesc：指向一个D3D12_RESOURCE_DESC实例的指针，用它描述待建的资源。
+        4．InitialResourceState：回顾4.2.3节的内容可知，不管何时，每个资源都会处于一种特定的使用状态。在资源创建时，需要用此参数来设置它的初始状态。
+            对于深度/模板缓冲区来说，通常将其初始状态设置为D3D12_RESOURCE_STATE_COMMON，再利用ResourceBarrier方法辅以D3D12_RESOURCE_ STATE_DEPTH_WRITE状态，
+            将其转换为可以绑定在渲染流水线上的深度/模板缓冲区[39]。
+        5．pOptimizedClearValue：指向一个D3D12_CLEAR_VALUE对象的指针，它描述了一个用于清除资源的优化值。选择适当的优化清除值，可提高清除操作的执行速度。
+            若不希望指定优化清除值，可把此参数设为nullptr。
+            struct D3D12_CLEAR_VALUE
+            {
+              DXGI_FORMAT Format;
+              union
+              {
+                FLOAT Color[ 4 ];
+                D3D12_DEPTH_STENCIL_VALUE DepthStencil;
+              };
+            }     D3D12_CLEAR_VALUE;
+        6．riidResource：我们希望获得的ID3D12Resource接口的COM ID。
+        7．ppvResource：返回一个指向ID3D12Resource的指针，即新建的资源。
+
+        下面CreateCommittedResource第一个参数采用了CD3DX12_HEAP_PROPERTIES辅助构造函数来创建堆的属性结构体，它的具体实现如下：
+        explicit CD3DX12_HEAP_PROPERTIES(
+            D3D12_HEAP_TYPE type,
+            UINT creationNodeMask = 1,
+            UINT nodeMask = 1 )
+        {
+          Type = type;
+          CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+          MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+          CreationNodeMask = creationNodeMask;
+          VisibleNodeMask = nodeMask;
+        }
+    */
     D3D12_CLEAR_VALUE optClear;
     optClear.Format = mDepthStencilFormat;
     optClear.DepthStencil.Depth = 1.0f;
@@ -223,17 +424,29 @@ void D3DApp::OnResize()
         IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())));
 
     // Create descriptor to mip level 0 of entire resource using the format of the resource.
+    // 利用此资源的格式，为整个资源的第0mip层创建描述符
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Format = mDepthStencilFormat;
 	dsvDesc.Texture2D.MipSlice = 0;
+    /*
+        CreateDepthStencilView方法的第二个参数是指向D3D12_DEPTH_STENCIL_VIEW_DESC结构体的指针。
+        这个结构体描述了资源中元素的数据类型（格式）。如果资源在创建时已指定了具体格式（即此资源不是无类型格式），
+        那么就可以把该参数设为空指针，表示以该资源创建时的格式为它的第一个mipmap层级创建一个视图
+        （在创建深度/模板缓冲区时就只有一个mipmap层级，mipmap的相关知识将在第9章中进行讨论）。
+        由于我们已经为深度/模板缓冲区设置了具体格式，所以向此参数传入空指针。
+    */
     md3dDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
 
+
     // Transition the resource from its initial state to be used as a depth buffer.
+    // 将资源从初始状态转换为深度缓冲区
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-	
+#pragma endregion
+
+#pragma region ###Steap_9:设置视口###
     // Execute the resize commands.
     ThrowIfFailed(mCommandList->Close());
     ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
@@ -247,6 +460,27 @@ void D3DApp::OnResize()
 	// Wait until resize is complete.
 	FlushCommandQueue();
 
+    /*
+        我们通常会将3D场景绘制到与整个屏幕（在全屏模式下）或整个窗口工作区大小相当的后台缓冲区中。
+        但是，有时只是希望把3D场景绘制到后台缓冲区的某个矩形子区域当中，如图4.9所示。
+        我们把后台缓冲区中的这种矩形子区域叫作视口（viewport），并通过下列结构体来描述它：
+        typedef struct D3D12_VIEWPORT {
+            FLOAT TopLeftX;
+            FLOAT TopLeftY;
+            FLOAT Width;
+            FLOAT Height;
+            FLOAT MinDepth;
+            FLOAT MaxDepth;
+        } D3D12_VIEWPORT;
+        结构体中的前4个数据成员定义了视口矩形（viewport rectangle）相对于后台缓冲区的绘制范围（由于数据成员是用float类型表示的，
+        所以我们能够以小数精度来指定像素坐标）[40]。在Direct3D中，存储在深度缓冲区中的数据都是范围在0～1的归一化深度值。
+        MinDepth和MaxDepth这两个成员负责将深度值从区间[0, 1]转换到区间[MinDepth, MaxDepth]。通过对深度范围进行转换即可实现某些特效，
+        例如，我们可以依次设置MinDepth=0和MaxDepth=0，用此视口绘制的物体其深度值都为0，它们将比场景中其他物体的位置都更靠前。
+        然而，在大多数情况下通常会把MinDepth与MaxDepth分别设置为0与1，也就是令深度值保持不变。
+        只要填写好D3D12_VIEWPORT结构体， 便可以用ID3D12GraphicsCommandList::RSSetViewports方法来设置Direct3D中的视口了。
+        下面的示例是通过创建并设置一个视口，将场景绘至整个后台缓冲区：
+    */
+
 	// Update the viewport transform to cover the client area.
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
@@ -254,10 +488,48 @@ void D3DApp::OnResize()
 	mScreenViewport.Height   = static_cast<float>(mClientHeight);
 	mScreenViewport.MinDepth = 0.0f;
 	mScreenViewport.MaxDepth = 1.0f;
+    /*
+        mCommandList->RSSetViewports(1, &vp);
+        第一个参数是要绑定的视口数量（有些高级效果需要使用多个视口），第二个参数是一个指向视口数组的指针。
+    */
+#pragma endregion
 
+#pragma region ###Steap_10:设置裁剪矩形###
+    /*
+        我们可以相对于后台缓冲区定义一个裁剪矩形（scissor rectangle），在此矩形外的像素都将被剔除（即这些图像部分将不会被光栅化（rasterize）至后台缓冲区）。
+        这个方法能用于优化程序的性能。例如，假设已知有一个矩形的UI（user interface，用户界面）元素覆于屏幕中某块区域的最上层，
+        那么我们也就无须对3D空间中那些被它遮挡的像素进行处理了。
+        裁剪矩形由类型为RECT的D3D12_RECT结构体（typedef RECT D3D12_RECT;）定义而成：
+        typedef struct tagRECT
+        {
+          LONG  left;
+          LONG  top;
+          LONG  right;
+          LONG  bottom;
+        } RECT;
+        在Direct3D中，要用ID3D12GraphicsCommandList::RSSetScissorRects方法来设置裁剪矩形。
+        下面的示例将创建并设置一个覆盖后台缓冲区左上角1/4区域的裁剪矩形：
+        mScissorRect = { 0, 0, mClientWidth/2, mClientHeight/2 };
+        mCommandList->RSSetScissorRects(1, &mScissorRect);
+        类似于RSSetViewports方法，RSSetScissorRects方法的第一个参数是要绑定的裁剪矩形数量（为了实现一些高级效果有时会采用多个裁剪矩形），
+        第二个参数是指向一个裁剪矩形数组的指针。
+        **不能为同一个渲染目标指定多个裁剪矩形。多裁剪矩形（multiple scissor rectangle）是一种用于同时对多个渲染目标进行渲染的高级技术。
+        **裁剪矩形需要随着命令列表的重置而重置。
+    */
     mScissorRect = { 0, 0, mClientWidth, mClientHeight };
+#pragma endregion
 }
- 
+
+/// <summary>
+/// 框架方法:需要重写-MsgProc：该方法用于实现应用程序主窗口的窗口过程函数（procedure function）。
+/// 一般来说，如果需要处理在D3DApp::MsgProc中没有得到处理（或者不能如我们所愿进行处理）的消息，只要重写此方法即可。
+/// 该方法的实现在4.5.5节中有相应的讲解。此外，如果对该方法进行了重写，那么其中并未处理的消息都应当转交至D3DApp::MsgProc。
+/// </summary>
+/// <param name="hwnd"></param>
+/// <param name="msg"></param>
+/// <param name="wParam"></param>
+/// <param name="lParam"></param>
+/// <returns></returns>
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch( msg )
@@ -265,6 +537,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	// WM_ACTIVATE is sent when the window is activated or deactivated.  
 	// We pause the game when the window is deactivated and unpause it 
 	// when it becomes active.  
+    // 当一个程序被激活（activate）或进入非活动状态（deactivate）时便会发送此消息。
 	case WM_ACTIVATE:
 		if( LOWORD(wParam) == WA_INACTIVE )
 		{
@@ -279,6 +552,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	// WM_SIZE is sent when the user resizes the window.  
+    // 当用户调整窗口的大小时便会产生此消息。
 	case WM_SIZE:
 		// Save the new client area dimensions.
 		mClientWidth  = LOWORD(lParam);
@@ -336,6 +610,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+    // 当用户抓取调整栏时发送WM_ENTERSIZEMOVE消息
 	case WM_ENTERSIZEMOVE:
 		mAppPaused = true;
 		mResizing  = true;
@@ -344,6 +619,8 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
 	// Here we reset everything based on the new window dimensions.
+    // 当用户释放调整栏时发送WM_EXITSIZEMOVE消息
+    // 此处将根据新的窗口大小重置相关对象（如缓冲区、视图等）
 	case WM_EXITSIZEMOVE:
 		mAppPaused = false;
 		mResizing  = false;
@@ -352,22 +629,29 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
  
 	// WM_DESTROY is sent when the window is being destroyed.
+    // 当窗口被销毁时发送WM_DESTROY消息
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 
 	// The WM_MENUCHAR message is sent when a menu is active and the user presses 
 	// a key that does not correspond to any mnemonic or accelerator key. 
+    // 当某一菜单处于激活状态，而且用户按下的既不是助记键（mnemonic key）也不是加速键
+    // （acceleratorkey）时，就发送WM_MENUCHAR消息
 	case WM_MENUCHAR:
         // Don't beep when we alt-enter.
+        // 当按下组合键alt-enter时不发出beep蜂鸣声
         return MAKELRESULT(0, MNC_CLOSE);
 
 	// Catch this message so to prevent the window from becoming too small.
+    // 捕获此消息以防窗口变得过小
 	case WM_GETMINMAXINFO:
 		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200; 
 		return 0;
 
+    // 为了在代码中调用我们自己编写的鼠标输入虚函数，要按以下方式来处理与鼠标有关的消息：
+    // 为了使用GET_X_LPARAM和GET_Y_LPARAM两个宏，我们必须引入#include <Windowsx.h>。
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
@@ -395,6 +679,10 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+/// <summary>
+/// InitMainWindow：初始化应用程序主窗口。本书假设读者熟悉基本的Win32窗口初始化流程。
+/// </summary>
+/// <returns></returns>
 bool D3DApp::InitMainWindow()
 {
 	WNDCLASS wc;
@@ -436,6 +724,8 @@ bool D3DApp::InitMainWindow()
 }
 
 /// <summary>
+/// InitDirect3D：通过实现4.3节中讨论的步骤来完成Direct3D的初始化。
+/// 
 /// 初始化Direct3D入口
 /// 这一节我们会利用自己编写的演示框架来展示Direct3D的初始化过程。
 /// 这是一个比较冗长的流程，但每个程序只需执行一次即可。
@@ -453,7 +743,7 @@ bool D3DApp::InitMainWindow()
 /// <returns></returns>
 bool D3DApp::InitDirect3D()
 {
-#pragma region 创建设备
+#pragma region ###Steap_1:创建设备###
 #if defined(DEBUG) || defined(_DEBUG) 
 	// Enable the D3D12 debug layer.
     // 创建设备-启用D3D12的调试层
@@ -503,7 +793,7 @@ bool D3DApp::InitDirect3D()
 	}
 #pragma endregion
 
-#pragma region 创建围栏并获取描述符的大小
+#pragma region ###Steap_2:创建围栏并获取描述符的大小###
     /*
     一旦创建好设备，便可以为CPU/GPU的同步而创建围栏了。
     另外，若用描述符进行工作，还需要了解它们的大小。
@@ -518,7 +808,7 @@ bool D3DApp::InitDirect3D()
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 #pragma endregion
 
-#pragma region 检测对4X MSAA质量级别的支持
+#pragma region ###Steap_3:检测对4X MSAA质量级别的支持###
     // Check 4X MSAA quality support for our back buffer format.
     // All Direct3D 11 capable devices support 4X MSAA for all render 
     // target formats, so we only need to check quality support.
@@ -575,18 +865,22 @@ bool D3DApp::InitDirect3D()
 #ifdef _DEBUG
     LogAdapters();
 #endif
-
+#pragma region ###Steap_4:创建命令队列和命令列表###
     // 创建命令队列和命令列表
 	CreateCommandObjects();
-    // 描述并创建交换链
+#pragma endregion
+#pragma region ###Steap_5:描述并创建交换链###
     CreateSwapChain();
-    // 创建描述符堆
+#pragma endregion
+#pragma region ###Steap_6:创建描述符堆###
     CreateRtvAndDsvDescriptorHeaps();
+#pragma endregion
 
 	return true;
 }
 
 /// <summary>
+/// CreateCommandObjects：依4.3.4节中所述的流程创建命令队列、命令列表分配器和命令列表。
 /// 创建命令队列和命令列表
 /// </summary>
 void D3DApp::CreateCommandObjects()
@@ -689,13 +983,48 @@ void D3DApp::CreateCommandObjects()
 }
 
 /// <summary>
+/// CreateSwapChain：创建交换链
 /// 描述并创建交换链
 /// </summary>
 void D3DApp::CreateSwapChain()
 {
     // Release the previous swapchain we will be recreating.
+    // 释放之前所有的交换链，随后再进行重建
     mSwapChain.Reset();
 
+    /*
+        DXGI_SWAP_CHAIN_DESC:原型
+      typedef struct DXGI_SWAP_CHAIN_DESC
+        {
+          DXGI_MODE_DESC BufferDesc;
+          DXGI_SAMPLE_DESC SampleDesc;
+          DXGI_USAGE BufferUsage;
+          UINT BufferCount;
+          HWND OutputWindow;
+          BOOL Windowed;
+          DXGI_SWAP_EFFECT SwapEffect;
+          UINT Flags;
+        } DXGI_SWAP_CHAIN_DESC;
+        1．BufferDesc：这个结构体描述了待创建后台缓冲区的属性。在这里我们仅关注它的宽度、高度和像素格式属性。至于其他成员的细节可查看SDK文档。
+        2．SampleDesc：多重采样的质量级别以及对每个像素的采样次数，可参见4.1.8节。对于单次采样来说，我们要将采样数量指定为1，质量级别指定为0。
+        3．BufferUsage：由于我们要将数据渲染至后台缓冲区（即用它作为渲染目标），因此将此参数指定为DXGI_USAGE_RENDER_TARGET_OUTPUT。
+        4．BufferCount：交换链中所用的缓冲区数量。我们将它指定为2，即采用双缓冲。
+        5．OutputWindow：渲染窗口的句柄。
+        6．Windowed：若指定为true，程序将在窗口模式下运行；如果指定为false，则采用全屏模式。
+        7．SwapEffect：指定为DXGI_SWAP_EFFECT_FLIP_DISCARD。
+        8．Flags：可选标志。如果将其指定为DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH，那么，当程序切换为全屏模式时，它将选择最适于当前应用程序窗口尺寸的显示模式。如果没有指定该标志，当程序切换为全屏模式时，将采用当前桌面的显示模式。
+
+    DXGI_MODE_DESC(BufferDesc):原型
+    typedef struct DXGI_MODE_DESC
+    {
+      UINT Width;                                     // 缓冲区分辨率的宽度
+      UINT Height;                                    // 缓冲区分辨率的高度
+      DXGI_RATIONAL RefreshRate;
+      DXGI_FORMAT Format;                           // 缓冲区的显示格式
+      DXGI_MODE_SCANLINE_ORDER ScanlineOrdering;  // 逐行扫描 vs. 隔行扫描
+      DXGI_MODE_SCALING Scaling;                     // 图像如何相对于屏幕进行拉伸
+    } DXGI_MODE_DESC;
+    */
     // sd.BufferDesc == DXGI_SWAP_CHAIN_DESC.DXGI_MODE_DESC
     DXGI_SWAP_CHAIN_DESC sd;
     sd.BufferDesc.Width = mClientWidth;
@@ -715,7 +1044,14 @@ void D3DApp::CreateSwapChain()
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	// Note: Swap chain uses queue to perform flush.
+    /*
+    HRESULT IDXGIFactory::CreateSwapChain(
+         IUnknown *pDevice,              // 指向ID3D12CommandQueue接口的指针
+         DXGI_SWAP_CHAIN_DESC *pDesc,   // 指向描述交换链的结构体的指针
+         IDXGISwapChain **ppSwapChain); // 返回所创建的交换链接口
+    */
+    // Note: Swap chain uses queue to perform flush.
+    // 注意：交换链需要通过命令队列对其进行刷新
     ThrowIfFailed(mdxgiFactory->CreateSwapChain(
 		mCommandQueue.Get(),
 		&sd, 
@@ -723,6 +1059,8 @@ void D3DApp::CreateSwapChain()
 }
 
 /*
+    FlushCommandQueue：强制CPU等待GPU，直到GPU处理完队列中所有的命令（详见4.2.2节）。
+
     如果不加围栏，cpu不阻塞，会将之前提交的命令覆盖（之前提交的这个命令好美被GPU处理）导致渲染错误
     解决此问题的一种办法是：强制CPU等待，直到GPU完成所有命令的处理，达到某个指定的围栏点（fence point）为止。我们将这种方法称为刷新命令队列（flushing the command queue），可以通过围栏（fence）来实现这一点。
     围栏用ID3D12Fence接口来表示[26]，此技术能用于实现GPU和CPU间的同步。
@@ -775,36 +1113,70 @@ void D3DApp::FlushCommandQueue()
 	}
 }
 
+/// <summary>
+/// CurrentBackBuffer：返回交换链中当前后台缓冲区的ID3D12Resource。
+/// 
+/// mCurrBackBuffer是用来记录当前后台缓冲区的索引（由于利用页面翻转技术来交换前台缓冲区和后台缓冲区，
+/// 所以我们需要对其进行记录，以便搞清楚哪个缓冲区才是当前正在用于渲染数据的后台缓冲区）。
+/// </summary>
+/// <returns></returns>
 ID3D12Resource* D3DApp::CurrentBackBuffer()const
 {
 	return mSwapChainBuffer[mCurrBackBuffer].Get();
 }
 
+/*
+    创建描述符堆之后，还要能访问其中所存的描述符。
+    在程序中，我们是通过句柄来引用描述符的，并以ID3D12DescriptorHeap::GetCPUDescriptorHandleForHeapStart方法来获得描述符堆中第一个描述符的句柄。
+    借助下列函数即可获取当前后台缓冲区的RTV与DSV：
+*/
+
+/// <summary>
+/// CurrentBackBufferView：返回当前后台缓冲区的RTV（渲染目标视图，render target view）。
+/// 
+/// 获取当前后台缓冲区的RTV
+/// </summary>
+/// <returns></returns>
 D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::CurrentBackBufferView()const
 {
+    // CD3DX12构造函数根据给定的偏移量找到当前后台缓冲区的RTV
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-		mCurrBackBuffer,
-		mRtvDescriptorSize);
+		mRtvHeap->GetCPUDescriptorHandleForHeapStart(), // 堆中的首个句柄
+		mCurrBackBuffer,    // 偏移至后台缓冲区描述符句柄的索引
+		mRtvDescriptorSize);// 描述符所占字节的大小
 }
 
+/// <summary>
+/// DepthStencilView：返回主深度/模板缓冲区的DSV（深度/模板视图，depth/stencil view）。
+/// 
+/// 获取当前后台缓冲区的DSV
+/// </summary>
+/// <returns></returns>
 D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::DepthStencilView()const
 {
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 
+/// <summary>
+/// CalculateFrameStats：计算每秒的平均帧数以及每帧平均的毫秒时长。实现方法将在4.5.4节中讨论。
+/// 
+/// 帧的统计信息
+/// 
+/// </summary>
 void D3DApp::CalculateFrameStats()
 {
 	// Code computes the average frames per second, and also the 
 	// average time it takes to render one frame.  These stats 
 	// are appended to the window caption bar.
-    
+    // 这段代码计算了每秒的平均帧数，也计算了每帧的平均渲染时间
+    // 这些统计值都会被附加到窗口的标题栏中
 	static int frameCnt = 0;
 	static float timeElapsed = 0.0f;
 
 	frameCnt++;
 
 	// Compute averages over one second period.
+    // 以1秒为统计周期来计算平均帧数以及每帧的平均渲染时间
 	if( (mTimer.TotalTime() - timeElapsed) >= 1.0f )
 	{
 		float fps = (float)frameCnt; // fps = frameCnt / 1
@@ -820,12 +1192,15 @@ void D3DApp::CalculateFrameStats()
         SetWindowText(mhMainWnd, windowText.c_str());
 		
 		// Reset for next average.
+        // 为计算下一组平均值而重置
 		frameCnt = 0;
 		timeElapsed += 1.0f;
 	}
 }
 
 /*
+    LogAdapters：枚举系统中所有的适配器（参见4.1.10节）。
+
     我们刚刚简单地叙述了DXGI的概念，下面来介绍一些在Direct3D初始化时会用到的相关接口。
     IDXGIFactory 是DXGI中的关键接口之一，主要用于创建IDXGISwapChain接口以及枚举显示适配器。
     而显示适配器则真正实现了图形处理能力。
@@ -866,6 +1241,8 @@ void D3DApp::LogAdapters()
 }
 
 /*
+    LogAdapterOutputs：枚举指定适配器的全部显示输出（参见4.1.10节）
+
     另外，一个系统也可能装有数个显示设备。
     我们称每一台显示设备都是一个显示输出（display output，有的文档也作adapter output，适配器输出）实例，
     用IDXGIOutput接口来表示。每个适配器都与一组显示输出相关联。
@@ -897,6 +1274,8 @@ void D3DApp::LogAdapterOutputs(IDXGIAdapter* adapter)
 }
 
 /*
+    LogOutputDisplayModes：枚举某个显示输出对特定格式支持的所有显示模式（参见4.1.10节）。 
+
 每种显示设备都有一系列它所支持的显示模式，可以用下列DXGI_MODE_DESC结构体中的数据成员来加以表示：
 typedef struct DXGI_MODE_DESC
 {

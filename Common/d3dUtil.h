@@ -128,6 +128,10 @@ public:
 		const std::string& target);
 };
 
+/*
+    大多数的Direct3D函数会返回HRESULT错误码。我们的示例程序实则采用简单的错误处理机制来检测返回的HRESULT值。
+    如果检测失败，则抛出异常，显示调用出错的错误码、函数名、文件名以及发生错误的行号。这些操作具体由d3dUtil.h中的代码实现：
+*/
 class DxException
 {
 public:
@@ -274,6 +278,37 @@ struct Texture
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
 };
 
+/*
+    不难看出ThrowIfFailed必定是一个宏，而不是一个函数；若非如此，__FILE__和__LINE__将定位到ThrowIfFailed所在的文件与行，
+    而非出错函数的文件与行。L#x会将宏ThrowIfFailed的参数转换为Unicode字符串。
+    这样一来，我们就能将函数调用所产生的错误信息输出到消息框当中。
+
+    对于Direct3D函数返回的HRESULT值，我们是这样使用宏对其进行检测的[47]：
+    ThrowIfFailed(md3dDevice->CreateCommittedResource(
+      &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+      D3D12_HEAP_FLAG_NONE,
+      &depthStencilDesc,
+      D3D12_RESOURCE_STATE_COMMON,
+      &optClear,
+      IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())));
+
+      整个程序逻辑都位于一个try/catch块之中：
+        try
+        {
+        InitDirect3DApp theApp(hInstance);
+        if(!theApp.Initialize())
+            return 0;
+
+        return theApp.Run();
+        }
+        catch(DxException& e)
+        {
+        MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+        return 0;
+        }
+      如果返回的HRESULT是个错误值，则抛出异常，通过MessageBox函数输出相关信息，并退出程序。
+      例如，在向CreateCommittedResource方法传递了一个无效参数时，我们便会看到图4.13所示的消息框。
+*/
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
 {                                                                     \
