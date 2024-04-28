@@ -72,4 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Box\Shaders\color_ps.cso" />
+    <None Include="Box\Shaders\color_vs.cso" />
+    <None Include="Box\Shaders\color.hlsl" />
+  </ItemGroup>
 </Project>

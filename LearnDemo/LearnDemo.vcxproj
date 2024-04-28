@@ -148,6 +148,15 @@
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Box\Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Box\Shaders\color_ps.cso" />
+    <None Include="Box\Shaders\color_vs.cso" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

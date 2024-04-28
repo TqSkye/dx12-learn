@@ -262,7 +262,7 @@ void D3DApp::OnResize()
     // 偏移至后台缓冲区描述符句柄的索引
 	mCurrBackBuffer = 0;
  
-#pragma region ###Steap_7:创建渲染目标视图###
+#pragma region &&&&&Steap_7:创建渲染目标视图&&&&&
     /*
         void ID3D12Device::CreateRenderTargetView(
           ID3D12Resource *pResource,
@@ -290,7 +290,7 @@ void D3DApp::OnResize()
 	}
 #pragma endregion
 
-#pragma region ###Steap_8:创建深度/模板缓冲区及其视图###
+#pragma region &&&&&Steap_8:创建深度/模板缓冲区及其视图&&&&&
     /*
         现在来创建程序中所需的深度/模板缓冲区。正如4.1.5节所述，深度缓冲区其实就是一种2D纹理，
         它存储着离观察者最近的可视对象的深度信息（如果使用了模板，还会附有模板信息）。
@@ -446,7 +446,7 @@ void D3DApp::OnResize()
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 #pragma endregion
 
-#pragma region ###Steap_9:设置视口###
+#pragma region &&&&&Steap_9:设置视口&&&&&
     // Execute the resize commands.
     ThrowIfFailed(mCommandList->Close());
     ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
@@ -494,7 +494,7 @@ void D3DApp::OnResize()
     */
 #pragma endregion
 
-#pragma region ###Steap_10:设置裁剪矩形###
+#pragma region &&&&&Steap_10:设置裁剪矩形&&&&&
     /*
         我们可以相对于后台缓冲区定义一个裁剪矩形（scissor rectangle），在此矩形外的像素都将被剔除（即这些图像部分将不会被光栅化（rasterize）至后台缓冲区）。
         这个方法能用于优化程序的性能。例如，假设已知有一个矩形的UI（user interface，用户界面）元素覆于屏幕中某块区域的最上层，
@@ -743,7 +743,7 @@ bool D3DApp::InitMainWindow()
 /// <returns></returns>
 bool D3DApp::InitDirect3D()
 {
-#pragma region ###Steap_1:创建设备###
+#pragma region &&&&&Steap_1:创建设备&&&&&
 #if defined(DEBUG) || defined(_DEBUG) 
 	// Enable the D3D12 debug layer.
     // 创建设备-启用D3D12的调试层
@@ -793,7 +793,7 @@ bool D3DApp::InitDirect3D()
 	}
 #pragma endregion
 
-#pragma region ###Steap_2:创建围栏并获取描述符的大小###
+#pragma region &&&&&Steap_2:创建围栏并获取描述符的大小&&&&&
     /*
     一旦创建好设备，便可以为CPU/GPU的同步而创建围栏了。
     另外，若用描述符进行工作，还需要了解它们的大小。
@@ -808,7 +808,7 @@ bool D3DApp::InitDirect3D()
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 #pragma endregion
 
-#pragma region ###Steap_3:检测对4X MSAA质量级别的支持###
+#pragma region &&&&&Steap_3:检测对4X MSAA质量级别的支持&&&&&
     // Check 4X MSAA quality support for our back buffer format.
     // All Direct3D 11 capable devices support 4X MSAA for all render 
     // target formats, so we only need to check quality support.
@@ -865,14 +865,14 @@ bool D3DApp::InitDirect3D()
 #ifdef _DEBUG
     LogAdapters();
 #endif
-#pragma region ###Steap_4:创建命令队列和命令列表###
+#pragma region &&&&&Steap_4:创建命令队列和命令列表&&&&&
     // 创建命令队列和命令列表
 	CreateCommandObjects();
 #pragma endregion
-#pragma region ###Steap_5:描述并创建交换链###
+#pragma region &&&&&Steap_5:描述并创建交换链&&&&&
     CreateSwapChain();
 #pragma endregion
-#pragma region ###Steap_6:创建描述符堆###
+#pragma region &&&&&Steap_6:创建描述符堆&&&&&
     CreateRtvAndDsvDescriptorHeaps();
 #pragma endregion
 
