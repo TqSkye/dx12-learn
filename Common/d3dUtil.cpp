@@ -143,6 +143,7 @@ ComPtr<ID3DBlob> d3dUtil::CompileShader(
 	const std::string& entrypoint,
 	const std::string& target)
 {
+    // 若处于调试模式,则使用调试标志
 	UINT compileFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
 	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -152,9 +153,46 @@ ComPtr<ID3DBlob> d3dUtil::CompileShader(
 
 	ComPtr<ID3DBlob> byteCode = nullptr;
 	ComPtr<ID3DBlob> errors;
+
+    /*
+        HRESULT D3DCompileFromFile(
+          LPCWSTR pFileName,
+          const D3D_SHADER_MACRO *pDefines,
+          ID3DInclude *pInclude,
+          LPCSTR pEntrypoint,
+          LPCSTR pTarget,
+          UINT Flags1,
+          UINT Flags2,
+          ID3DBlob **ppCode,
+          ID3DBlob **ppErrorMsgs);
+        1．pFileName：我们希望编译的以.hlsl作为扩展名的HLSL源代码文件。
+        2．pDefines：在本书中，我们并不使用这个高级选项，因此总是将它指定为空指针。关于此参数的详细信息可参见SDK文档。
+        3．pInclude：在本书中，我们并不使用这个高级选项，因而总是将它指定为空指针。关于此参数的详细信息可详见SDK文档。
+        4．pEntrypoint：着色器的入口点函数名。一个.hlsl文件可能存有多个着色器程序（例如，一个顶点着色器和一个像素着色器），
+            所以我们需要为待编译的着色器指定入口点。
+        5．pTarget：指定所用着色器类型和版本的字符串。在本书中，我们采用的着色器模型版本是5.0和5.1[17]。
+            a）vs_5_0与vs_5_1：表示版本分别为5.0和5.1的顶点着色器（vertex shader）。
+            b）hs_5_0与hs_5_1：表示版本分别为5.0和5.1的外壳着色器（hull shader）。
+            c）ds_5_0与ds_5_1：表示版本分别为5.0和5.1的域着色器（domain shader）。
+            d）gs_5_0与gs_5_1：表示版本分别为5.0和5.1的几何着色器（geometry shader）。
+            e）ps_5_0与ps_5_1：表示版本分别为5.0和5.1的像素着色器（pixel shader）。
+            f）cs_5_0与cs_5_1：表示版本分别为5.0和5.1的计算着色器（compute shader）。
+        6．Flags1：指示对着色器代码应当如何编译的标志。在SDK文档里，这些标志列出得不少，但是此书中我们仅用两种。
+            a）D3DCOMPILE_DEBUG：用调试模式来编译着色器。
+            b）D3DCOMPILE_SKIP_OPTIMIZATION：指示编译器跳过优化阶段（对调试很有用处）。
+        7．Flags2：我们不会用到处理效果文件的高级编译选项，关于它的信息请参见SDK文档。
+        8．ppCode：返回一个指向ID3DBlob数据结构的指针，它存储着编译好的着色器对象字节码。
+        9．ppErrorMsgs：返回一个指向ID3DBlob数据结构的指针。如果在编译过程中发生了错误，它便会储存报错的字符串。
+            ID3DBlob类型描述的其实就是一段普通的内存块，这是该接口的两个方法：
+            a）LPVOID GetBufferPointer：返回指向ID3DBlob对象中数据的void*类型的指针。由此可见，在使用此数据之前务必先要将它转换为适当的类型（参考下面的示例）。
+            b）SIZE_T GetBufferSize：返回缓冲区的字节大小（即该对象中的数据大小）。
+
+        为了能够输出错误信息，我们在d3dUtil.h/.cpp文件中实现了下列辅助函数在运行时编译着色器：ComPtr<ID3DBlob> d3dUtil::CompileShader
+    */
 	hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errors);
 
+    // 将错误信息输出到调试窗口
 	if(errors != nullptr)
 		OutputDebugStringA((char*)errors->GetBufferPointer());
 
