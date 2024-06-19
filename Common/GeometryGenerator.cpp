@@ -7,6 +7,15 @@
 
 using namespace DirectX;
 
+/*
+    我们将程序性几何体（procedural geometry，也有译作过程化几何体。这个词的译法较多，大意就是“根据用户提供的参数以程序自动生成对应的几何体”）
+    的生成代码放入GeometryGenerator类（GeometryGenerator.h/.cpp）中。
+    GeometryGenerator是一个工具类，用于生成如栅格、球体、柱体以及长方体这类简单的几何体，在我们的演示程序中将常常见到它们的身影。
+    此类将数据生成在系统内存中，而我们必须将这些数据复制到顶点缓冲区和索引缓冲区内。GeometryGenerator类还可创建出一些后续章节要用到的顶点数据，
+    由于我们当前的演示程序中还用不到它们，所以暂时不会将这些数据复制到顶点缓冲区。
+    MeshData是一个嵌套在GeometryGenerator类中用于存储顶点列表和索引列表的简易结构体：
+*/
+
 GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width, float height, float depth, uint32 numSubdivisions)
 {
     MeshData meshData;
@@ -100,6 +109,11 @@ GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width, float heig
     return meshData;
 }
 
+/*
+    欲定义一个球体，就要指定其半径、切片数量及其堆叠层数，如图7.3所示。除了每个环上的半径是依三角函数非线性变化，
+    生成球体的算法与生成圆台的算法非常相近。我们将把GeometryGenerator::CreateSphere方法的代码留给读者自行研究。
+    最后，值得一提的是，若采用不等比缩放世界变换，即可将球体转换为椭球体。
+*/
 GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius, uint32 sliceCount, uint32 stackCount)
 {
     MeshData meshData;
@@ -304,14 +318,22 @@ GeometryGenerator::Vertex GeometryGenerator::MidPoint(const Vertex& v0, const Ve
     return v;
 }
 
+/*
+    生成几何球体网格观察图7.3可知，构成球体的三角形面积并不相同，这在某些情景中并非我们所愿。相对而言，几何球体（geosphere）利用面积相同且边长相等的三角形来逼近球体，
+    如图7.4所示。[插图]图7.4　通过反复细分并将新生成的顶点重新投影到球面上，便可以近似地表示一个几何球体为了生成几何球体，我们以一个正二十面体作为基础，细分其上的三角形，
+    再根据给定的半径向球面投影新生成的顶点。反复重复这个过程，便可以提高该几何球体的曲面细分程度。图7.5展示了如何将一个三角形细分为4个大小相等的小三角形。
+    不难发现，新生成的顶点都位于原始三角形边上的中点。先将顶点投影到单位球面上，再利用[插图]进行标量乘法：[插图]，即可把新顶点都投影到半径为[插图]的球体之上。
+*/
 GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uint32 numSubdivisions)
 {
     MeshData meshData;
 
 	// Put a cap on the number of subdivisions.
+    // 确定细分的次数
     numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
 
 	// Approximate a sphere by tessellating an icosahedron.
+    // 通过对一个正二十面体进行曲面细分来逼近一个球体
 
 	const float X = 0.525731f; 
 	const float Z = 0.850651f;
@@ -344,21 +366,26 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uin
 		Subdivide(meshData);
 
 	// Project vertices onto sphere and scale.
+    // 将每一个顶点都投影到球面，并推导其对应的纹理坐标
 	for(uint32 i = 0; i < meshData.Vertices.size(); ++i)
 	{
 		// Project onto unit sphere.
+        // 投影到单位球面上
 		XMVECTOR n = XMVector3Normalize(XMLoadFloat3(&meshData.Vertices[i].Position));
 
 		// Project onto sphere.
+        // 投射到球面上
 		XMVECTOR p = radius*n;
 
 		XMStoreFloat3(&meshData.Vertices[i].Position, p);
 		XMStoreFloat3(&meshData.Vertices[i].Normal, n);
 
 		// Derive texture coordinates from spherical coordinates.
+         // 根据球面坐标推导出纹理坐标
         float theta = atan2f(meshData.Vertices[i].Position.z, meshData.Vertices[i].Position.x);
 
         // Put in [0, 2pi].
+        // 将theta限制在[0, 2pi]区间内
         if(theta < 0.0f)
             theta += XM_2PI;
 
@@ -368,6 +395,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uin
 		meshData.Vertices[i].TexC.y = phi/XM_PI;
 
 		// Partial derivative of P with respect to theta
+        // 求出P关于theta（p对于theta）的偏导数 
 		meshData.Vertices[i].TangentU.x = -radius*sinf(phi)*sinf(theta);
 		meshData.Vertices[i].TangentU.y = 0.0f;
 		meshData.Vertices[i].TangentU.z = +radius*sinf(phi)*cosf(theta);
@@ -379,28 +407,43 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uin
     return meshData;
 }
 
+/*
+    创建圆柱体:
+    1-柱体的侧面几何体:
+    我们要生成的是中心（即1/2高度处截面的中心点）位于原点，且旋转轴平行于[y]轴的圆台。从图7.1中可以看出，
+    圆台的所有顶点都列于其各层侧面的“环”上，共有stackCount + 1环，而每个环上的顶点数量都为sliceCount。
+    相邻环的半径差为[(德尔塔)Δr=(topRadius-bottomRadius)/stackCount]。
+    如果从底面上的环开始用索引来0表示，那么第[i]环的半径就是[r(i)=bottomRadius+i*Δr] ，
+    且第[i]环的高度值为[h(i)=-(h/2)+i*Δh]
+    （可见，1/2高度以下为负值，1/2高度以上为正值），其中的[Δh]是每层的高度，[h]为圆台的高度。
+    由此可知，生成圆台的基本思路是遍历每个环，并生成列于环上的各个顶点。下面给出此算法的实现：
+*/
+// 创建圆柱体-1-柱体的侧面几何体:
 GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount)
 {
     MeshData meshData;
 
 	//
-	// Build Stacks.
+	// Build Stacks.构建堆叠层
 	// 
 
 	float stackHeight = height / stackCount;
 
 	// Amount to increment radius as we move up each stack level from bottom to top.
+    // 计算从下至上遍历每个相邻分层时所需的半径增量
 	float radiusStep = (topRadius - bottomRadius) / stackCount;
 
 	uint32 ringCount = stackCount+1;
 
 	// Compute vertices for each stack ring starting at the bottom and moving up.
+    // 从底面开始，由下至上计算每个堆叠层环上的顶点坐标
 	for(uint32 i = 0; i < ringCount; ++i)
 	{
 		float y = -0.5f*height + i*stackHeight;
 		float r = bottomRadius + i*radiusStep;
 
 		// vertices of ring
+        // 环上的各个顶点
 		float dTheta = 2.0f*XM_PI/sliceCount;
 		for(uint32 j = 0; j <= sliceCount; ++j)
 		{
@@ -419,6 +462,13 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
 			// so that the bitangent goes in the same direction as the v tex-coord.
 			//   Let r0 be the bottom radius and let r1 be the top radius.
 			//   y(v) = h - hv for v in [0,1].
+ 
+            // 可以像下面那样以参数化（parameterized）的方式来计算圆台顶点，我们引入与纹理坐标v方
+            // 向相同的参数v，从而使副切线（bitangent，相关概念见19.3节）与纹理坐标v
+            // 的方向相同
+            // 设r0为底面半径，r1为顶面半径
+            //  y(v) = h - hv  其中v位于区间[0,1]
+
 			//   r(v) = r1 + (r0-r1)v
 			//
 			//   x(t, v) = r(v)*cos(t)
@@ -434,6 +484,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
 			//  dz/dv = (r0-r1)*sin(t)
 
 			// This is unit length.
+            // 此为单位长度
 			vertex.TangentU = XMFLOAT3(-s, 0.0f, c);
 
 			float dr = bottomRadius-topRadius;
@@ -448,11 +499,21 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
 		}
 	}
 
+    /*
+        观察图7.2可知，由每个分层以及切片分割出的侧面块都是一个四边形（由两个三角形构成）。
+        而以第[i]层与第[j]块切片所确定下来的侧面块中的两个三角形的索引分别为：
+        ΔABC = (i*n + j, (i + 1)*n + j, (i + 1)*n + j + 1)
+        ΔACD = (i*n + j, (i + 1)*n + j + 1, i*n + j + 1)
+        其中，[n]是每个环上的顶点数量。
+        因此，求取圆台侧面块上所有三角形索引的主要思路是：遍历每个堆叠层和每个切片，并运用上述公式进行计算。
+    */
 	// Add one because we duplicate the first and last vertex per ring
 	// since the texture coordinates are different.
+    // +1是希望让每环的第一个顶点和最后一个顶点重合，这是因为它们的纹理坐标并不相同
 	uint32 ringVertexCount = sliceCount+1;
 
 	// Compute indices for each stack.
+    // 计算每个侧面块中三角形的索引
 	for(uint32 i = 0; i < stackCount; ++i)
 	{
 		for(uint32 j = 0; j < sliceCount; ++j)
@@ -473,6 +534,12 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
     return meshData;
 }
 
+/*
+    创建圆柱体:
+    2-柱体的端面几何体:
+    生成圆台端面的几何体，相当于在其顶面和底面的截面上切割出多个三角形，使之逼近一个圆形：
+*/
+// 创建圆柱体-2-柱体的端面几何体:
 void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius, float height,
 											uint32 sliceCount, uint32 stackCount, MeshData& meshData)
 {
@@ -482,6 +549,7 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 	float dTheta = 2.0f*XM_PI/sliceCount;
 
 	// Duplicate cap ring vertices because the texture coordinates and normals differ.
+    // 使圆台端面环上的首尾顶点重合，因为这两个顶点的纹理坐标和法线是不同的
 	for(uint32 i = 0; i <= sliceCount; ++i)
 	{
 		float x = topRadius*cosf(i*dTheta);
@@ -489,6 +557,7 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 
 		// Scale down by the height to try and make top cap texture coord area
 		// proportional to base.
+        // 根据圆台的高度使顶面纹理坐标的范围按比例缩小
 		float u = x/height + 0.5f;
 		float v = z/height + 0.5f;
 
@@ -496,9 +565,11 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 	}
 
 	// Cap center vertex.
+    // 顶面的中心顶点
 	meshData.Vertices.push_back( Vertex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f) );
 
 	// Index of center vertex.
+    // 中心顶点的索引值
 	uint32 centerIndex = (uint32)meshData.Vertices.size()-1;
 
 	for(uint32 i = 0; i < sliceCount; ++i)
@@ -509,6 +580,12 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 	}
 }
 
+/*
+    创建圆柱体:
+    3-柱体的底面几何体:
+    与生成圆台端面的几何体相似
+*/
+// 创建圆柱体-3-柱体的底面几何体:
 void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadius, float height,
 											   uint32 sliceCount, uint32 stackCount, MeshData& meshData)
 {

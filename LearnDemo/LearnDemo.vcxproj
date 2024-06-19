@@ -136,6 +136,11 @@
     <ClCompile Include="..\Common\MathHelper.cpp" />
     <ClCompile Include="Box\BoxApp.cpp" />
     <ClCompile Include="Init Direct3D\InitDirect3DApp.cpp" />
+    <ClCompile Include="LandAndWaves\FrameResource.cpp" />
+    <ClCompile Include="LandAndWaves\LandAndWavesApp.cpp" />
+    <ClCompile Include="LandAndWaves\Waves.cpp" />
+    <ClCompile Include="Shapes\FrameResource1.cpp" />
+    <ClCompile Include="Shapes\ShapesApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h" />
@@ -147,6 +152,9 @@
     <ClInclude Include="..\Common\GeometryGenerator.h" />
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
+    <ClInclude Include="LandAndWaves\FrameResource.h" />
+    <ClInclude Include="LandAndWaves\Waves.h" />
+    <ClInclude Include="Shapes\FrameResource1.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color.hlsl">
@@ -156,6 +164,14 @@
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
     <None Include="Box\Shaders\color_vs.cso" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LandAndWaves\Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shapes\Shaders\color.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

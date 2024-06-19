@@ -42,6 +42,21 @@
     <ClCompile Include="Box\BoxApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Shapes\ShapesApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LandAndWaves\FrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LandAndWaves\LandAndWavesApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LandAndWaves\Waves.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Shapes\FrameResource1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h">
@@ -71,10 +86,21 @@
     <ClInclude Include="..\Common\UploadBuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="LandAndWaves\Waves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LandAndWaves\FrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes\FrameResource1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
     <None Include="Box\Shaders\color_vs.cso" />
     <None Include="Box\Shaders\color.hlsl" />
+    <None Include="LandAndWaves\Shaders\color.hlsl" />
+    <None Include="Shapes\Shaders\color.hlsl" />
   </ItemGroup>
 </Project>
