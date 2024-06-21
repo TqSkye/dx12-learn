@@ -57,6 +57,21 @@
     <ClCompile Include="Shapes\FrameResource1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="LitWaves\FrameResourceWaves.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LitWaves\LitWaves.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LitWaves\LitWavesApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LitColumns\LitColumnsApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LitColumns\FrameResourceLitColumns.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h">
@@ -95,6 +110,15 @@
     <ClInclude Include="Shapes\FrameResource1.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="LitWaves\FrameResourceWaves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LitWaves\LitWaves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LitColumns\FrameResourceLitColumns.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
@@ -102,5 +126,13 @@
     <None Include="Box\Shaders\color.hlsl" />
     <None Include="LandAndWaves\Shaders\color.hlsl" />
     <None Include="Shapes\Shaders\color.hlsl" />
+    <None Include="LitWaves\Shaders\LightingUtil.hlsl" />
+    <None Include="LitWaves\Shaders\Default.hlsl" />
+    <None Include="LitColumns\Shaders\LightingUtil.hlsl" />
+    <None Include="LitColumns\Shaders\Default.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LitColumns\Models\skull.txt" />
+    <Text Include="LitColumns\Models\car.txt" />
   </ItemGroup>
 </Project>

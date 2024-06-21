@@ -625,6 +625,9 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadi
 	}
 }
 
+/*
+    生成栅格
+*/
 GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float depth, uint32 m, uint32 n)
 {
     MeshData meshData;
@@ -633,7 +636,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float dep
 	uint32 faceCount   = (m-1)*(n-1)*2;
 
 	//
-	// Create the vertices.
+	// Create the vertices.生成栅格顶点
 	//
 
 	float halfWidth = 0.5f*width;
@@ -658,18 +661,20 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float dep
 			meshData.Vertices[i*n+j].TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 			// Stretch texture over grid.
+            // 在栅格上拉伸纹理
 			meshData.Vertices[i*n+j].TexC.x = j*du;
 			meshData.Vertices[i*n+j].TexC.y = i*dv;
 		}
 	}
  
     //
-	// Create the indices.
+	// Create the indices.生成栅格索引
 	//
 
-	meshData.Indices32.resize(faceCount*3); // 3 indices per face
+	meshData.Indices32.resize(faceCount*3); // 3 indices per face 每个三角形面有3个索引
 
 	// Iterate over each quad and compute indices.
+    // 遍历每个四边形并计算索引
 	uint32 k = 0;
 	for(uint32 i = 0; i < m-1; ++i)
 	{
@@ -683,7 +688,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGrid(float width, float dep
 			meshData.Indices32[k+4] = i*n+j+1;
 			meshData.Indices32[k+5] = (i+1)*n+j+1;
 
-			k += 6; // next quad
+			k += 6; // next quad 下一个四边形
 		}
 	}
 

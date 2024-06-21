@@ -139,6 +139,11 @@
     <ClCompile Include="LandAndWaves\FrameResource.cpp" />
     <ClCompile Include="LandAndWaves\LandAndWavesApp.cpp" />
     <ClCompile Include="LandAndWaves\Waves.cpp" />
+    <ClCompile Include="LitColumns\FrameResourceLitColumns.cpp" />
+    <ClCompile Include="LitColumns\LitColumnsApp.cpp" />
+    <ClCompile Include="LitWaves\FrameResourceWaves.cpp" />
+    <ClCompile Include="LitWaves\LitWaves.cpp" />
+    <ClCompile Include="LitWaves\LitWavesApp.cpp" />
     <ClCompile Include="Shapes\FrameResource1.cpp" />
     <ClCompile Include="Shapes\ShapesApp.cpp" />
   </ItemGroup>
@@ -154,6 +159,9 @@
     <ClInclude Include="..\Common\UploadBuffer.h" />
     <ClInclude Include="LandAndWaves\FrameResource.h" />
     <ClInclude Include="LandAndWaves\Waves.h" />
+    <ClInclude Include="LitColumns\FrameResourceLitColumns.h" />
+    <ClInclude Include="LitWaves\FrameResourceWaves.h" />
+    <ClInclude Include="LitWaves\LitWaves.h" />
     <ClInclude Include="Shapes\FrameResource1.h" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +180,24 @@
     <None Include="Shapes\Shaders\color.hlsl">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LitColumns\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="LitColumns\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="LitWaves\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="LitWaves\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LitColumns\Models\car.txt" />
+    <Text Include="LitColumns\Models\skull.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

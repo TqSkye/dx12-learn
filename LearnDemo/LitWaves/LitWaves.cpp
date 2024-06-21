@@ -1,8 +1,8 @@
 //***************************************************************************************
-// Waves.cpp by Frank Luna (C) 2011 All Rights Reserved.
+// LitWaves.cpp by Frank Luna (C) 2011 All Rights Reserved.
 //***************************************************************************************
 
-#include "Waves.h"
+#include "LitWaves.h"
 #include <ppl.h>
 #include <algorithm>
 #include <vector>
@@ -10,7 +10,7 @@
 
 using namespace DirectX;
 
-Waves::Waves(int m, int n, float dx, float dt, float speed, float damping)
+LitWaves::LitWaves(int m, int n, float dx, float dt, float speed, float damping)
 {
     mNumRows = m;
     mNumCols = n;
@@ -51,41 +51,41 @@ Waves::Waves(int m, int n, float dx, float dt, float speed, float damping)
     }
 }
 
-Waves::~Waves()
+LitWaves::~LitWaves()
 {
 }
 
-int Waves::RowCount()const
+int LitWaves::RowCount()const
 {
 	return mNumRows;
 }
 
-int Waves::ColumnCount()const
+int LitWaves::ColumnCount()const
 {
 	return mNumCols;
 }
 
-int Waves::VertexCount()const
+int LitWaves::VertexCount()const
 {
 	return mVertexCount;
 }
 
-int Waves::TriangleCount()const
+int LitWaves::TriangleCount()const
 {
 	return mTriangleCount;
 }
 
-float Waves::Width()const
+float LitWaves::Width()const
 {
 	return mNumCols*mSpatialStep;
 }
 
-float Waves::Depth()const
+float LitWaves::Depth()const
 {
 	return mNumRows*mSpatialStep;
 }
 
-void Waves::Update(float dt)
+void LitWaves::Update(float dt)
 {
 	static float t = 0;
 
@@ -154,7 +154,7 @@ void Waves::Update(float dt)
 	}
 }
 
-void Waves::Disturb(int i, int j, float magnitude)
+void LitWaves::Disturb(int i, int j, float magnitude)
 {
 	// Don't disturb boundaries.
 	assert(i > 1 && i < mNumRows-2);
