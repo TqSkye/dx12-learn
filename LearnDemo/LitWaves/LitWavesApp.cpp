@@ -414,6 +414,8 @@
 //	{
 //		// Only update the cbuffer data if the constants have changed.  If the cbuffer
 //		// data changes, it needs to be updated for each FrameResourceWaves.
+//      // 如果材质常量数据有了变化就更新常量缓冲区数据。一旦常量缓冲区数据发生改变，就需对每一个帧
+//      // 资源FrameResource进行更新
 //		Material* mat = e.second.get();
 //		if(mat->NumFramesDirty > 0)
 //		{
@@ -427,6 +429,7 @@
 //			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 //
 //			// Next FrameResourceWaves need to be updated too.
+//          // 也需要对下一个FrameResource进行更新
 //			mat->NumFramesDirty--;
 //		}
 //	}
@@ -709,6 +712,8 @@
 //
 //    // This is not a good water material definition, but we do not have all the rendering
 //    // tools we need (transparency, environment reflection), so we fake it for now.
+//    // 当前这种水的材质定义得并不是很好，但是由于我们还未学会所需的全部渲染工具（如透明度、环境反
+//    // 射等），因此暂时先用这些数据解当务之急吧
 //	auto water = std::make_unique<Material>();
 //	water->Name = "water";
 //	water->MatCBIndex = 1;
