@@ -307,9 +307,11 @@ struct Material
 	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
+// 将纹理相关数据组织在一起的辅助结构体
 struct Texture
 {
 	// Unique material name for lookup.
+    // 便于查找材质所用的唯一名称
 	std::string Name;
 
 	std::wstring Filename;

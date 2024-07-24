@@ -72,6 +72,27 @@
     <ClCompile Include="LitColumns\FrameResourceLitColumns.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\Crate\CrateApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\Crate\CrateFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWavesApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWaves.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h">
@@ -119,6 +140,18 @@
     <ClInclude Include="LitColumns\FrameResourceLitColumns.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Chapter 9 Texturing\Crate\CrateFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWaves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
@@ -130,6 +163,12 @@
     <None Include="LitWaves\Shaders\Default.hlsl" />
     <None Include="LitColumns\Shaders\LightingUtil.hlsl" />
     <None Include="LitColumns\Shaders\Default.hlsl" />
+    <None Include="Chapter 9 Texturing\Crate\Shaders\Default.hlsl" />
+    <None Include="Chapter 9 Texturing\Crate\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 9 Texturing\TexColumns\Shaders\Default.hlsl" />
+    <None Include="Chapter 9 Texturing\TexColumns\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 9 Texturing\TexWaves\Shaders\Default.hlsl" />
+    <None Include="Chapter 9 Texturing\TexWaves\Shaders\LightingUtil.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LitColumns\Models\skull.txt" />

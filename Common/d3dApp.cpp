@@ -2,6 +2,56 @@
 // d3dApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 //***************************************************************************************
 
+/*
+* 资源视图:
+在DirectX 11中，RTV、SRV和UAV是不同类型的资源视图（Resource Views），它们定义了如何访问GPU资源。以下是它们各自的定义和用途：
+    RTV (RenderTarget View)：
+    1.RTV代表渲染目标视图。
+    2.它用于访问将被渲染到的表面，例如帧缓冲区或纹理。
+    3.在渲染过程中，RTV指定了渲染输出的目的地，可以是颜色缓冲区、深度缓冲区或模板缓冲区。
+
+    SRV (Shader Resource View)：
+    1.SRV代表着色器资源视图。
+    2.它用于在着色器中访问资源，如纹理、常量缓冲区或结构化缓冲区。
+    3.SRV允许着色器读取数据，这些数据可以用于纹理采样、顶点属性或在着色器中进行计算。
+
+    UAV (Unordered Access View)：
+    1.UAV代表无序访问视图。
+    2.它用于在着色器中读写资源，如纹理或缓冲区。
+    3.UAV允许多个着色器线程同时对资源进行读写操作，这在实现某些并行计算或物理模拟时非常有用。
+
+    CBV（Constant Buffer View）：
+    1.CBV是一种资源视图，用于在着色器中访问常量缓冲区的内容。
+    2.它定义了着色器如何读取常量缓冲区中的数据，包括数据的布局和格式。
+
+    这些资源视图是DirectX 11中资源绑定模型的关键部分，它们使得开发者能够灵活地控制资源在着色器中的使用方式。通过正确配置和使用这些视图，可以提高渲染效率和实现复杂的图形效果。
+    例如，在一个典型的渲染流程中：
+    使用SRV将纹理资源传递到着色器中进行采样。
+    使用RTV指定渲染输出的目标，如画布或纹理。
+    使用UAV在着色器中进行一些并行处理，如计算光照或物理模拟。
+    使用CBV在渲染循环中，开发者通常会更新常量缓冲区的内容，然后将这些常量传递给着色器。
+
+    Depth-Stencil View (DSV)： DSV用于访问深度-模板缓冲区，它可以被用于深度测试和模板测试。
+    Constant Buffer View (CBV)： CBV用于在着色器中访问常量缓冲区，它允许着色器读取预定义的常量数据。
+    Element Buffer View (EBV)： EBV用于访问索引缓冲区，通常与顶点缓冲区一起使用，用于渲染带索引的几何体。
+    Input Layout (Vertex Buffer View)： 输入布局定义了顶点缓冲区中数据的布局，它不是资源视图，但是用于顶点数据的解释和处理。
+    Stream Output Buffer View (SOV)： SOV用于访问流输出缓冲区，这些缓冲区可以捕获从顶点着色器或几何着色器发出的数据流。
+    Blendable Render Target View (BRV)： BRV是一种特殊的RTV，允许多个渲染目标同时进行渲染，并且可以用于实现混合效果。
+    Texture2D Shader Resource View (T2D SRV)： 这是SRV的一个特化，用于访问二维纹理资源。
+    Texture2D Array Shader Resource View (T2DArray SRV)： 用于访问二维纹理数组的SRV。
+    Texture3D Shader Resource View (T3D SRV)： 用于访问三维纹理资源的SRV。
+    TextureCube Shader Resource View (TC SRV)： 用于访问立方体贴图资源的SRV。
+
+    ----------------------------------------------------------
+
+    CB:常量缓冲区（Constant Buffer）：
+    1.常量缓冲区是一种在GPU上用于存储常量数据的资源，这些数据在渲染过程中不会频繁改变。
+    2.常量缓冲区通常用于存储着色器中需要的常量参数，如变换矩阵、光照参数、材质属性等。
+
+    SB:流缓冲区（Stream Buffer）：
+    1.流缓冲区是一种GPU资源，用于存储数据流，这些数据可以是顶点数据、索引数据或其他类型的数据序列。
+*/
+
 #include "d3dApp.h"
 #include <WindowsX.h>
 

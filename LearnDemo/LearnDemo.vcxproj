@@ -135,6 +135,13 @@
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
     <ClCompile Include="Box\BoxApp.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\Crate\CrateApp.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\Crate\CrateFrameResource.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsApp.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWavesApp.cpp" />
+    <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWaves.cpp" />
     <ClCompile Include="Init Direct3D\InitDirect3DApp.cpp" />
     <ClCompile Include="LandAndWaves\FrameResource.cpp" />
     <ClCompile Include="LandAndWaves\LandAndWavesApp.cpp" />
@@ -157,6 +164,10 @@
     <ClInclude Include="..\Common\GeometryGenerator.h" />
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
+    <ClInclude Include="Chapter 9 Texturing\Crate\CrateFrameResource.h" />
+    <ClInclude Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.h" />
+    <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.h" />
+    <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWaves.h" />
     <ClInclude Include="LandAndWaves\FrameResource.h" />
     <ClInclude Include="LandAndWaves\Waves.h" />
     <ClInclude Include="LitColumns\FrameResourceLitColumns.h" />
@@ -198,6 +209,26 @@
   <ItemGroup>
     <Text Include="LitColumns\Models\car.txt" />
     <Text Include="LitColumns\Models\skull.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 9 Texturing\Crate\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 9 Texturing\Crate\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 9 Texturing\TexColumns\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 9 Texturing\TexColumns\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 9 Texturing\TexWaves\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 9 Texturing\TexWaves\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
