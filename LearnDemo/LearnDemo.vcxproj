@@ -135,6 +135,11 @@
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
     <ClCompile Include="Box\BoxApp.cpp" />
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendApp.cpp" />
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendFrameResource.cpp" />
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendWaves.cpp" />
+    <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.cpp" />
+    <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilApp.cpp" />
     <ClCompile Include="Chapter 9 Texturing\Crate\CrateApp.cpp" />
     <ClCompile Include="Chapter 9 Texturing\Crate\CrateFrameResource.cpp" />
     <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.cpp" />
@@ -164,6 +169,9 @@
     <ClInclude Include="..\Common\GeometryGenerator.h" />
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
+    <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendFrameResource.h" />
+    <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendWaves.h" />
+    <ClInclude Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\Crate\CrateFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.h" />
@@ -207,6 +215,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Chapter 11 Stenciling\StencilDemo\Models\car.txt" />
+    <Text Include="Chapter 11 Stenciling\StencilDemo\Models\skull.txt" />
     <Text Include="LitColumns\Models\car.txt" />
     <Text Include="LitColumns\Models\skull.txt" />
   </ItemGroup>
@@ -227,6 +237,22 @@
       <FileType>Document</FileType>
     </None>
     <None Include="Chapter 9 Texturing\TexWaves\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 10 Blending\BlendDemo\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 10 Blending\BlendDemo\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 11 Stenciling\StencilDemo\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 11 Stenciling\StencilDemo\Shaders\LightingUtil.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

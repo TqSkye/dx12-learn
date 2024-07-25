@@ -93,6 +93,21 @@
     <ClCompile Include="Chapter 9 Texturing\TexWaves\TexWaves.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendWaves.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h">
@@ -152,6 +167,15 @@
     <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWaves.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendWaves.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
@@ -169,9 +193,15 @@
     <None Include="Chapter 9 Texturing\TexColumns\Shaders\LightingUtil.hlsl" />
     <None Include="Chapter 9 Texturing\TexWaves\Shaders\Default.hlsl" />
     <None Include="Chapter 9 Texturing\TexWaves\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 10 Blending\BlendDemo\Shaders\Default.hlsl" />
+    <None Include="Chapter 10 Blending\BlendDemo\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 11 Stenciling\StencilDemo\Shaders\Default.hlsl" />
+    <None Include="Chapter 11 Stenciling\StencilDemo\Shaders\LightingUtil.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LitColumns\Models\skull.txt" />
     <Text Include="LitColumns\Models\car.txt" />
+    <Text Include="Chapter 11 Stenciling\StencilDemo\Models\car.txt" />
+    <Text Include="Chapter 11 Stenciling\StencilDemo\Models\skull.txt" />
   </ItemGroup>
 </Project>
