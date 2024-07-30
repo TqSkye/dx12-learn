@@ -21,12 +21,14 @@ public:
 	~Camera();
 
 	// Get/Set world camera position.
+    // 获取及设置世界(空间中)摄像机的位置
 	DirectX::XMVECTOR GetPosition()const;
 	DirectX::XMFLOAT3 GetPosition3f()const;
 	void SetPosition(float x, float y, float z);
 	void SetPosition(const DirectX::XMFLOAT3& v);
 	
 	// Get camera basis vectors.
+    // 获取摄像机的基向量
 	DirectX::XMVECTOR GetRight()const;
 	DirectX::XMFLOAT3 GetRight3f()const;
 	DirectX::XMVECTOR GetUp()const;
@@ -35,6 +37,7 @@ public:
 	DirectX::XMFLOAT3 GetLook3f()const;
 
 	// Get frustum properties.
+    // 获取视锥体的属性
 	float GetNearZ()const;
 	float GetFarZ()const;
 	float GetAspect()const;
@@ -42,19 +45,23 @@ public:
 	float GetFovX()const;
 
 	// Get near and far plane dimensions in view space coordinates.
+    // 获取用观察空间坐标表示的近、远平面的大小
 	float GetNearWindowWidth()const;
 	float GetNearWindowHeight()const;
 	float GetFarWindowWidth()const;
 	float GetFarWindowHeight()const;
 	
 	// Set frustum.
+    // 设置视锥体
 	void SetLens(float fovY, float aspect, float zn, float zf);
 
 	// Define camera space via LookAt parameters.
+    // 通过LookAt方法的参数来定义摄像机空间
 	void LookAt(DirectX::FXMVECTOR pos, DirectX::FXMVECTOR target, DirectX::FXMVECTOR worldUp);
 	void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
 
 	// Get View/Proj matrices.
+    // 获取观察矩阵与投影矩阵
 	DirectX::XMMATRIX GetView()const;
 	DirectX::XMMATRIX GetProj()const;
 
@@ -62,14 +69,17 @@ public:
 	DirectX::XMFLOAT4X4 GetProj4x4f()const;
 
 	// Strafe/Walk the camera a distance d.
+    // 将摄像机按距离d进行左右平移（Strafe）或前后移动（Walk）
 	void Strafe(float d);
 	void Walk(float d);
 
 	// Rotate the camera.
+    // 将摄像机进行旋转
 	void Pitch(float angle);
 	void RotateY(float angle);
 
 	// After modifying camera position/orientation, call to rebuild the view matrix.
+    // 修改摄像机的位置与朝向之后，调用此函数来重新构建观察矩阵
 	void UpdateViewMatrix();
 
 private:

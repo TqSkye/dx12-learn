@@ -140,6 +140,38 @@
     <ClCompile Include="Chapter 10 Blending\BlendDemo\BlendWaves.cpp" />
     <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.cpp" />
     <ClCompile Include="Chapter 11 Stenciling\StencilDemo\StencilApp.cpp" />
+    <ClCompile Include="Chapter 12 The Geometry Shader\TreeBillboards\TGSFrameResource.cpp" />
+    <ClCompile Include="Chapter 12 The Geometry Shader\TreeBillboards\TreeBillboardsApp.cpp" />
+    <ClCompile Include="Chapter 12 The Geometry Shader\TreeBillboards\TGSWaves.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\Blur\BlurApp.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\Blur\BlurFilter.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\Blur\BlurFrameResource.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\Blur\BlurWaves.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\SobelFilter\SobelFrameResource.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\SobelFilter\GpuWaves.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\SobelFilter\RenderTarget.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\SobelFilter\SobelApp.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\SobelFilter\SobelFilter.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\VecAdd\VecAddFrameResource.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\VecAdd\VecAddCSApp.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\WavesCS\WavesCSFrameResource.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\WavesCS\GpuWavesCS.cpp" />
+    <ClCompile Include="Chapter 13 The Compute Shader\WavesCS\WavesCSApp.cpp" />
+    <ClCompile Include="Chapter 14 The Tessellation Stages\BasicTessellation\BasicTessellationApp.cpp" />
+    <ClCompile Include="Chapter 14 The Tessellation Stages\BasicTessellation\BTFrameResource.cpp" />
+    <ClCompile Include="Chapter 14 The Tessellation Stages\BezierPatch\BezierPatchApp.cpp" />
+    <ClCompile Include="Chapter 14 The Tessellation Stages\BezierPatch\BPFrameResource.cpp" />
+    <ClCompile Include="Chapter 15 First Person Camera and Dynamic Indexing\CameraAndDynamicIndexing\CameraAndDynamicIndexingApp.cpp" />
+    <ClCompile Include="Chapter 15 First Person Camera and Dynamic Indexing\CameraAndDynamicIndexing\CADIFrameResource.cpp" />
+    <ClCompile Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\IACFrameResource.cpp" />
+    <ClCompile Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\InstancingAndCullingApp.cpp" />
+    <ClCompile Include="Chapter 17 Picking\Picking\PickingFrameResource.cpp" />
+    <ClCompile Include="Chapter 17 Picking\Picking\PickingApp.cpp" />
+    <ClCompile Include="Chapter 18 Cube Mapping\CubeMap\CubeMapApp.cpp" />
+    <ClCompile Include="Chapter 18 Cube Mapping\CubeMap\CMFrameResource.cpp" />
+    <ClCompile Include="Chapter 18 Cube Mapping\DynamicCube\CubeRenderTarget.cpp" />
+    <ClCompile Include="Chapter 18 Cube Mapping\DynamicCube\DynamicCubeMapApp.cpp" />
+    <ClCompile Include="Chapter 18 Cube Mapping\DynamicCube\DCFrameResource.cpp" />
     <ClCompile Include="Chapter 9 Texturing\Crate\CrateApp.cpp" />
     <ClCompile Include="Chapter 9 Texturing\Crate\CrateFrameResource.cpp" />
     <ClCompile Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.cpp" />
@@ -172,6 +204,26 @@
     <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendFrameResource.h" />
     <ClInclude Include="Chapter 10 Blending\BlendDemo\BlendWaves.h" />
     <ClInclude Include="Chapter 11 Stenciling\StencilDemo\StencilFrameResource.h" />
+    <ClInclude Include="Chapter 12 The Geometry Shader\TreeBillboards\TGSFrameResource.h" />
+    <ClInclude Include="Chapter 12 The Geometry Shader\TreeBillboards\TGSWaves.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\Blur\BlurFilter.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\Blur\BlurFrameResource.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\Blur\BlurWaves.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\SobelFilter\SobelFrameResource.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\SobelFilter\GpuWaves.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\SobelFilter\RenderTarget.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\SobelFilter\SobelFilter.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\VecAdd\VecAddFrameResource.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\WavesCS\WavesCSFrameResource.h" />
+    <ClInclude Include="Chapter 13 The Compute Shader\WavesCS\GpuWavesCS.h" />
+    <ClInclude Include="Chapter 14 The Tessellation Stages\BasicTessellation\BTFrameResource.h" />
+    <ClInclude Include="Chapter 14 The Tessellation Stages\BezierPatch\BPFrameResource.h" />
+    <ClInclude Include="Chapter 15 First Person Camera and Dynamic Indexing\CameraAndDynamicIndexing\CADIFrameResource.h" />
+    <ClInclude Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\IACFrameResource.h" />
+    <ClInclude Include="Chapter 17 Picking\Picking\PickingFrameResource.h" />
+    <ClInclude Include="Chapter 18 Cube Mapping\CubeMap\CMFrameResource.h" />
+    <ClInclude Include="Chapter 18 Cube Mapping\DynamicCube\CubeRenderTarget.h" />
+    <ClInclude Include="Chapter 18 Cube Mapping\DynamicCube\DCFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\Crate\CrateFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\TexColumns\TexColumnsFrameResource.h" />
     <ClInclude Include="Chapter 9 Texturing\TexWaves\TexWavesFrameResource.h" />
@@ -217,6 +269,15 @@
   <ItemGroup>
     <Text Include="Chapter 11 Stenciling\StencilDemo\Models\car.txt" />
     <Text Include="Chapter 11 Stenciling\StencilDemo\Models\skull.txt" />
+    <Text Include="Chapter 13 The Compute Shader\VecAdd\results.txt" />
+    <Text Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\Models\car.txt" />
+    <Text Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\Models\skull.txt" />
+    <Text Include="Chapter 17 Picking\Picking\Models\car.txt" />
+    <Text Include="Chapter 17 Picking\Picking\Models\skull.txt" />
+    <Text Include="Chapter 18 Cube Mapping\CubeMap\Models\car.txt" />
+    <Text Include="Chapter 18 Cube Mapping\CubeMap\Models\skull.txt" />
+    <Text Include="Chapter 18 Cube Mapping\DynamicCube\Models\car.txt" />
+    <Text Include="Chapter 18 Cube Mapping\DynamicCube\Models\skull.txt" />
     <Text Include="LitColumns\Models\car.txt" />
     <Text Include="LitColumns\Models\skull.txt" />
   </ItemGroup>
@@ -253,6 +314,120 @@
       <FileType>Document</FileType>
     </None>
     <None Include="Chapter 11 Stenciling\StencilDemo\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 12 The Geometry Shader\TreeBillboards\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 12 The Geometry Shader\TreeBillboards\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 12 The Geometry Shader\TreeBillboards\Shaders\TreeSprite.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 13 The Compute Shader\Blur\Shaders\Blur.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\Blur\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\Blur\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\Blur.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\Composite.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\Sobel.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\SobelFilter\Shaders\WaveSim.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\VecAdd\Shaders\VecAdd.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\WavesCS\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\WavesCS\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 13 The Compute Shader\WavesCS\Shaders\WaveSim.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 14 The Tessellation Stages\BasicTessellation\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 14 The Tessellation Stages\BasicTessellation\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 14 The Tessellation Stages\BasicTessellation\Shaders\Tessellation.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 14 The Tessellation Stages\BezierPatch\Shaders\BezierTessellation.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 14 The Tessellation Stages\BezierPatch\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 14 The Tessellation Stages\BezierPatch\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 15 First Person Camera and Dynamic Indexing\CameraAndDynamicIndexing\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 15 First Person Camera and Dynamic Indexing\CameraAndDynamicIndexing\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 16 Instancing and Frustum Culling\InstancingAndCulling\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Chapter 18 Cube Mapping\CubeMap\Shaders\Common.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\CubeMap\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\CubeMap\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\CubeMap\Shaders\Sky.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\Common.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\Default.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\LightingUtil.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\Sky.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

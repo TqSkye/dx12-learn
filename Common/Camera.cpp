@@ -113,9 +113,11 @@ float Camera::GetFarWindowHeight()const
 	return mFarWindowHeight;
 }
 
+// 我们可以认为摄像机的镜头即视锥体，因为它控制着观察者的视野。所以，我们在缓存视锥体属性以及构建投影矩阵时就要用到的SetLens方法：
 void Camera::SetLens(float fovY, float aspect, float zn, float zf)
 {
 	// cache properties
+    // 缓存视椎体属性
 	mFovY = fovY;
 	mAspect = aspect;
 	mNearZ = zn;
@@ -223,6 +225,13 @@ void Camera::RotateY(float angle)
 	mViewDirty = true;
 }
 
+/*
+    构建观察矩阵UpdateViewMatrix方法首先将摄像机的右向量（right）、上向量（up）与观察向量（look）分别重新进行正交规范化（
+    reorthonormalize，也有译作规范正交化等）处理。以此确保它们彼此正交，且都为单位长度。
+    这样做很有必要，因为一连串的旋转操作以及累积的数值误差会使它们变为非正交规范向量。
+    若果真如此，那么这3个向量表示的将不再是直角坐标系，而是一个斜坐标系（skewed coordinate system，也有译作非对称坐标系），
+    这并非我们的本意。该方法的后续部分就是将这3个摄像机向量代入式（15.1）中，从而计算出观察变换矩阵。
+*/
 void Camera::UpdateViewMatrix()
 {
 	if(mViewDirty)
@@ -233,13 +242,16 @@ void Camera::UpdateViewMatrix()
 		XMVECTOR P = XMLoadFloat3(&mPosition);
 
 		// Keep camera's axes orthogonal to each other and of unit length.
+        // 使摄像机的坐标向量彼此正交且保持单位长度
 		L = XMVector3Normalize(L);
 		U = XMVector3Normalize(XMVector3Cross(L, R));
 
 		// U, L already ortho-normal, so no need to normalize cross product.
+        // U，L已互为正交规范化向量，所以不需要对下列叉积再进行规范化处理
 		R = XMVector3Cross(U, L);
 
 		// Fill in the view matrix entries.
+         // 填写观察矩阵中的元素
 		float x = -XMVectorGetX(XMVector3Dot(P, R));
 		float y = -XMVectorGetX(XMVector3Dot(P, U));
 		float z = -XMVectorGetX(XMVector3Dot(P, L));
