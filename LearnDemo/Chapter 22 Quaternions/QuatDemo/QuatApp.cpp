@@ -1,35 +1,18 @@
 ////***************************************************************************************
-//// CubeMapApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
+//// QuatApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
 ////***************************************************************************************
-//
-///*
-//    立方体贴图:
-//        立方体贴图（cube mapping，也有译作立方体纹理映射等）的主要思路是：存储6个纹理，将它们分别看作立方体的6个面——因此而得名“立方体图”。
-//        另外，此立方体的中心点位于某坐标系的原点，且该立方体对齐于该坐标系的主轴。由于立方体纹理是轴对齐的，也就是说，它的每个面各对应于坐标系某个方向的主轴，
-//        因此我们可以根据与面相交的坐标轴方向（±x, ±Y, ±Z）来引用立方体图的特定面。在Direct3D中，立方体图被表示为一个由6个元素所构成的纹理数组，即：
-//            1．索引0援引的是与[+X]轴相交的面。
-//            2．索引1援引的是与[-X]轴相交的面。
-//            3．索引2援引的是与[+Y]轴相交的面。
-//            4．索引3援引的是与[-Y]轴相交的面。
-//            5．索引4援引的是与[+Z]轴相交的面。
-//            6．索引5援引的是与[-Z]轴相交的面。
-//        寻找立方体图中纹素的方法与普通的2D纹理并不相同，此时不再用2D纹理坐标来指定纹素，而是要使用3D纹理坐标：它定义了一个起点位于原点的查找（lookup）向量[v]。
-//        向量[v]与立方体图相交处的纹素（见图18.1）即为[v]的3D坐标所对应的纹素。我们在第9章中所讨论的纹理过滤思想便贯彻在向量[插v图]与纹素样本间求取交点的过程当中。
-//*/
 //
 //#include "../../../Common/d3dApp.h"
 //#include "../../../Common/MathHelper.h"
 //#include "../../../Common/UploadBuffer.h"
 //#include "../../../Common/GeometryGenerator.h"
 //#include "../../../Common/Camera.h"
-//#include "CMFrameResource.h"
+//#include "QuatFrameResource.h"
+//#include "AnimationHelper.h"
 //
 //using Microsoft::WRL::ComPtr;
 //using namespace DirectX;
 //using namespace DirectX::PackedVector;
-//
-//#pragma comment(lib, "d3dcompiler.lib")
-//#pragma comment(lib, "D3D12.lib")
 //
 //const int gNumFrameResources = 3;
 //
@@ -68,20 +51,13 @@
 //    int BaseVertexLocation = 0;
 //};
 //
-//enum class RenderLayer : int
-//{
-//	Opaque = 0,
-//	Sky,
-//	Count
-//};
-//
-//class CubeMapApp : public D3DApp
+//class QuatApp : public D3DApp
 //{
 //public:
-//    CubeMapApp(HINSTANCE hInstance);
-//    CubeMapApp(const CubeMapApp& rhs) = delete;
-//    CubeMapApp& operator=(const CubeMapApp& rhs) = delete;
-//    ~CubeMapApp();
+//    QuatApp(HINSTANCE hInstance);
+//    QuatApp(const QuatApp& rhs) = delete;
+//    QuatApp& operator=(const QuatApp& rhs) = delete;
+//    ~QuatApp();
 //
 //    virtual bool Initialize()override;
 //
@@ -100,6 +76,7 @@
 //	void UpdateMaterialBuffer(const GameTimer& gt);
 //	void UpdateMainPassCB(const GameTimer& gt);
 //
+//    void DefineSkullAnimation();
 //	void LoadTextures();
 //    void BuildRootSignature();
 //	void BuildDescriptorHeaps();
@@ -116,8 +93,8 @@
 //
 //private:
 //
-//    std::vector<std::unique_ptr<CMFrameResource>> mFrameResources;
-//    CMFrameResource* mCurrFrameResource = nullptr;
+//    std::vector<std::unique_ptr<QuatFrameResource>> mFrameResources;
+//    QuatFrameResource* mCurrFrameResource = nullptr;
 //    int mCurrFrameResourceIndex = 0;
 //
 //    UINT mCbvSrvDescriptorSize = 0;
@@ -138,13 +115,17 @@
 //	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 //
 //	// Render items divided by PSO.
-//	std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
+//	std::vector<RenderItem*> mOpaqueRitems;
 //
-//	UINT mSkyTexHeapIndex = 0;
+//    RenderItem* mSkullRitem = nullptr;
+//    XMFLOAT4X4 mSkullWorld = MathHelper::Identity4x4();
 //
 //    PassConstants mMainPassCB;
 //
 //	Camera mCamera;
+//
+//    float mAnimTimePos = 0.0f;
+//    AnimationHelperBoneAnimation mSkullAnimation;
 //
 //    POINT mLastMousePos;
 //};
@@ -159,7 +140,7 @@
 //
 //    try
 //    {
-//        CubeMapApp theApp(hInstance);
+//        QuatApp theApp(hInstance);
 //        if(!theApp.Initialize())
 //            return 0;
 //
@@ -172,16 +153,19 @@
 //    }
 //}
 //
-//CubeMapApp::CubeMapApp(HINSTANCE hInstance)
+//QuatApp::QuatApp(HINSTANCE hInstance)
 //    : D3DApp(hInstance)
 //{
+//    DefineSkullAnimation();
 //}
 //
-//CubeMapApp::~CubeMapApp()
+//QuatApp::~QuatApp()
 //{
+//    if(md3dDevice != nullptr)
+//        FlushCommandQueue();
 //}
 //
-//bool CubeMapApp::Initialize()
+//bool QuatApp::Initialize()
 //{
 //    if(!D3DApp::Initialize())
 //        return false;
@@ -217,16 +201,27 @@
 //    return true;
 //}
 // 
-//void CubeMapApp::OnResize()
+//void QuatApp::OnResize()
 //{
 //    D3DApp::OnResize();
 //
 //	mCamera.SetLens(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 //}
 //
-//void CubeMapApp::Update(const GameTimer& gt)
+//void QuatApp::Update(const GameTimer& gt)
 //{
 //    OnKeyboardInput(gt);
+//
+//    mAnimTimePos += gt.DeltaTime();
+//    if(mAnimTimePos >= mSkullAnimation.GetEndTime())
+//    {
+//        // Loop animation back to beginning.
+//        mAnimTimePos = 0.0f;
+//    }
+//
+//    mSkullAnimation.Interpolate(mAnimTimePos, mSkullWorld);
+//    mSkullRitem->World = mSkullWorld;
+//    mSkullRitem->NumFramesDirty = gNumFrameResources;
 //
 //    // Cycle through the circular frame resource array.
 //    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
@@ -248,7 +243,7 @@
 //	UpdateMainPassCB(gt);
 //}
 //
-//void CubeMapApp::Draw(const GameTimer& gt)
+//void QuatApp::Draw(const GameTimer& gt)
 //{
 //    auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 //
@@ -258,7 +253,6 @@
 //
 //    // A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 //    // Reusing the command list reuses memory.
-//    // 绘制不透明物体
 //    ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 //
 //    mCommandList->RSSetViewports(1, &mScreenViewport);
@@ -288,24 +282,12 @@
 //	auto matBuffer = mCurrFrameResource->MaterialBuffer->Resource();
 //	mCommandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
 //
-//	// Bind the sky cube map.  For our demos, we just use one "world" cube map representing the environment
-//	// from far away, so all objects will use the same cube map and we only need to set it once per-frame.  
-//	// If we wanted to use "local" cube maps, we would have to change them per-object, or dynamically
-//	// index into an array of cube maps.
-//
-//	CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-//	skyTexDescriptor.Offset(mSkyTexHeapIndex, mCbvSrvDescriptorSize);
-//	mCommandList->SetGraphicsRootDescriptorTable(3, skyTexDescriptor);
-//
 //	// Bind all the textures used in this scene.  Observe
 //    // that we only have to specify the first descriptor in the table.  
 //    // The root signature knows how many descriptors are expected in the table.
-//	mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+//	mCommandList->SetGraphicsRootDescriptorTable(3, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 //
-//    DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
-//    // 绘制天空渲染项
-//	mCommandList->SetPipelineState(mPSOs["sky"].Get());
-//	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Sky]);
+//    DrawRenderItems(mCommandList.Get(), mOpaqueRitems);
 //
 //    // Indicate a state transition on the resource usage.
 //	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -331,7 +313,7 @@
 //    mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 //}
 //
-//void CubeMapApp::OnMouseDown(WPARAM btnState, int x, int y)
+//void QuatApp::OnMouseDown(WPARAM btnState, int x, int y)
 //{
 //    mLastMousePos.x = x;
 //    mLastMousePos.y = y;
@@ -339,12 +321,12 @@
 //    SetCapture(mhMainWnd);
 //}
 //
-//void CubeMapApp::OnMouseUp(WPARAM btnState, int x, int y)
+//void QuatApp::OnMouseUp(WPARAM btnState, int x, int y)
 //{
 //    ReleaseCapture();
 //}
 //
-//void CubeMapApp::OnMouseMove(WPARAM btnState, int x, int y)
+//void QuatApp::OnMouseMove(WPARAM btnState, int x, int y)
 //{
 //    if((btnState & MK_LBUTTON) != 0)
 //    {
@@ -360,7 +342,7 @@
 //    mLastMousePos.y = y;
 //}
 // 
-//void CubeMapApp::OnKeyboardInput(const GameTimer& gt)
+//void QuatApp::OnKeyboardInput(const GameTimer& gt)
 //{
 //	const float dt = gt.DeltaTime();
 //
@@ -379,12 +361,12 @@
 //	mCamera.UpdateViewMatrix();
 //}
 // 
-//void CubeMapApp::AnimateMaterials(const GameTimer& gt)
+//void QuatApp::AnimateMaterials(const GameTimer& gt)
 //{
 //	
 //}
 //
-//void CubeMapApp::UpdateObjectCBs(const GameTimer& gt)
+//void QuatApp::UpdateObjectCBs(const GameTimer& gt)
 //{
 //	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 //	for(auto& e : mAllRitems)
@@ -409,7 +391,7 @@
 //	}
 //}
 //
-//void CubeMapApp::UpdateMaterialBuffer(const GameTimer& gt)
+//void QuatApp::UpdateMaterialBuffer(const GameTimer& gt)
 //{
 //	auto currMaterialBuffer = mCurrFrameResource->MaterialBuffer.get();
 //	for(auto& e : mMaterials)
@@ -436,7 +418,7 @@
 //	}
 //}
 //
-//void CubeMapApp::UpdateMainPassCB(const GameTimer& gt)
+//void QuatApp::UpdateMainPassCB(const GameTimer& gt)
 //{
 //	XMMATRIX view = mCamera.GetView();
 //	XMMATRIX proj = mCamera.GetProj();
@@ -471,60 +453,107 @@
 //	currPassCB->CopyData(0, mMainPassCB);
 //}
 //
-//void CubeMapApp::LoadTextures()
+//void QuatApp::DefineSkullAnimation()
 //{
-//    std::vector<std::string> texNames =
-//    {
-//        "bricksDiffuseMap",
-//        "tileDiffuseMap",
-//        "defaultDiffuseMap",
-//        "skyCubeMap"
-//    };
+//    //
+//    // Define the animation keyframes
+//    //
 //
-//    std::vector<std::wstring> texFilenames =
-//    {
-//        L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/bricks2.dds",
-//        L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/tile.dds",
-//        L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/white1x1.dds",
-//        L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/grasscube1024.dds"
-//    };
+//    XMVECTOR q0 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(30.0f));
+//    XMVECTOR q1 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 1.0f, 2.0f, 0.0f), XMConvertToRadians(45.0f));
+//    XMVECTOR q2 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(-30.0f));
+//    XMVECTOR q3 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMConvertToRadians(70.0f));
 //
-//    for (int i = 0; i < (int)texNames.size(); ++i)
-//    {
-//        auto texMap = std::make_unique<Texture>();
-//        texMap->Name = texNames[i];
-//        texMap->Filename = texFilenames[i];
-//        ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-//            mCommandList.Get(), texMap->Filename.c_str(),
-//            texMap->Resource, texMap->UploadHeap));
+//    mSkullAnimation.Keyframes.resize(5);
+//    mSkullAnimation.Keyframes[0].TimePos = 0.0f;
+//    mSkullAnimation.Keyframes[0].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
+//    mSkullAnimation.Keyframes[0].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+//    XMStoreFloat4(&mSkullAnimation.Keyframes[0].RotationQuat, q0);
 //
-//        mTextures[texMap->Name] = std::move(texMap);
-//    }
+//    mSkullAnimation.Keyframes[1].TimePos = 2.0f;
+//    mSkullAnimation.Keyframes[1].Translation = XMFLOAT3(0.0f, 2.0f, 10.0f);
+//    mSkullAnimation.Keyframes[1].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+//    XMStoreFloat4(&mSkullAnimation.Keyframes[1].RotationQuat, q1);
+//
+//    mSkullAnimation.Keyframes[2].TimePos = 4.0f;
+//    mSkullAnimation.Keyframes[2].Translation = XMFLOAT3(7.0f, 0.0f, 0.0f);
+//    mSkullAnimation.Keyframes[2].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+//    XMStoreFloat4(&mSkullAnimation.Keyframes[2].RotationQuat, q2);
+//
+//    mSkullAnimation.Keyframes[3].TimePos = 6.0f;
+//    mSkullAnimation.Keyframes[3].Translation = XMFLOAT3(0.0f, 1.0f, -10.0f);
+//    mSkullAnimation.Keyframes[3].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+//    XMStoreFloat4(&mSkullAnimation.Keyframes[3].RotationQuat, q3);
+//
+//    mSkullAnimation.Keyframes[4].TimePos = 8.0f;
+//    mSkullAnimation.Keyframes[4].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
+//    mSkullAnimation.Keyframes[4].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+//    XMStoreFloat4(&mSkullAnimation.Keyframes[4].RotationQuat, q0);
 //}
 //
-//void CubeMapApp::BuildRootSignature()
+//void QuatApp::LoadTextures()
 //{
-//	CD3DX12_DESCRIPTOR_RANGE texTable0;
-//	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+//	auto bricksTex = std::make_unique<Texture>();
+//	bricksTex->Name = "bricksTex";
+//	bricksTex->Filename = L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/bricks2.dds";
+//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+//		mCommandList.Get(), bricksTex->Filename.c_str(),
+//		bricksTex->Resource, bricksTex->UploadHeap));
 //
-//	CD3DX12_DESCRIPTOR_RANGE texTable1;
-//	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, 0);
+//	auto stoneTex = std::make_unique<Texture>();
+//	stoneTex->Name = "stoneTex";
+//	stoneTex->Filename = L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/stone.dds";
+//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+//		mCommandList.Get(), stoneTex->Filename.c_str(),
+//		stoneTex->Resource, stoneTex->UploadHeap));
+//
+//	auto tileTex = std::make_unique<Texture>();
+//	tileTex->Name = "tileTex";
+//	tileTex->Filename = L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/tile.dds";
+//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+//		mCommandList.Get(), tileTex->Filename.c_str(),
+//		tileTex->Resource, tileTex->UploadHeap));
+//
+//	auto crateTex = std::make_unique<Texture>();
+//	crateTex->Name = "crateTex";
+//	crateTex->Filename = L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/WoodCrate01.dds";
+//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+//		mCommandList.Get(), crateTex->Filename.c_str(),
+//		crateTex->Resource, crateTex->UploadHeap));
+//
+//    auto defaultTex = std::make_unique<Texture>();
+//    defaultTex->Name = "defaultTex";
+//    defaultTex->Filename = L"E:/DX12Book/DX12LearnProject/DX12Learn/Textures/white1x1.dds";
+//    ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+//        mCommandList.Get(), defaultTex->Filename.c_str(),
+//        defaultTex->Resource, defaultTex->UploadHeap));
+//
+//	mTextures[bricksTex->Name] = std::move(bricksTex);
+//	mTextures[stoneTex->Name] = std::move(stoneTex);
+//	mTextures[tileTex->Name] = std::move(tileTex);
+//	mTextures[crateTex->Name] = std::move(crateTex);
+//    mTextures[defaultTex->Name] = std::move(defaultTex);
+//}
+//
+//void QuatApp::BuildRootSignature()
+//{
+//	CD3DX12_DESCRIPTOR_RANGE texTable;
+//	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0, 0);
 //
 //    // Root parameter can be a table, root descriptor or root constants.
-//    CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+//    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 //
 //	// Perfomance TIP: Order from most frequent to least frequent.
 //    slotRootParameter[0].InitAsConstantBufferView(0);
 //    slotRootParameter[1].InitAsConstantBufferView(1);
 //    slotRootParameter[2].InitAsShaderResourceView(0, 1);
-//	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-//	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+//	slotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 //
 //
 //	auto staticSamplers = GetStaticSamplers();
 //
 //    // A root signature is an array of root parameters.
-//	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
+//	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
 //		(UINT)staticSamplers.size(), staticSamplers.data(),
 //		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 //
@@ -547,7 +576,7 @@
 //        IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 //}
 //
-//void CubeMapApp::BuildDescriptorHeaps()
+//void QuatApp::BuildDescriptorHeaps()
 //{
 //	//
 //	// Create the SRV heap.
@@ -563,10 +592,11 @@
 //	//
 //	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 //
-//	auto bricksTex = mTextures["bricksDiffuseMap"]->Resource;
-//	auto tileTex = mTextures["tileDiffuseMap"]->Resource;
-//	auto whiteTex = mTextures["defaultDiffuseMap"]->Resource;
-//	auto skyTex = mTextures["skyCubeMap"]->Resource;
+//	auto bricksTex = mTextures["bricksTex"]->Resource;
+//	auto stoneTex = mTextures["stoneTex"]->Resource;
+//	auto tileTex = mTextures["tileTex"]->Resource;
+//	auto crateTex = mTextures["crateTex"]->Resource;
+//    auto defaultTex = mTextures["defaultTex"]->Resource;
 //
 //	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 //	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -580,6 +610,13 @@
 //	// next descriptor
 //	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 //
+//	srvDesc.Format = stoneTex->GetDesc().Format;
+//	srvDesc.Texture2D.MipLevels = stoneTex->GetDesc().MipLevels;
+//	md3dDevice->CreateShaderResourceView(stoneTex.Get(), &srvDesc, hDescriptor);
+//
+//	// next descriptor
+//	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+//
 //	srvDesc.Format = tileTex->GetDesc().Format;
 //	srvDesc.Texture2D.MipLevels = tileTex->GetDesc().MipLevels;
 //	md3dDevice->CreateShaderResourceView(tileTex.Get(), &srvDesc, hDescriptor);
@@ -587,24 +624,19 @@
 //	// next descriptor
 //	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 //
-//	srvDesc.Format = whiteTex->GetDesc().Format;
-//	srvDesc.Texture2D.MipLevels = whiteTex->GetDesc().MipLevels;
-//	md3dDevice->CreateShaderResourceView(whiteTex.Get(), &srvDesc, hDescriptor);
+//	srvDesc.Format = crateTex->GetDesc().Format;
+//	srvDesc.Texture2D.MipLevels = crateTex->GetDesc().MipLevels;
+//	md3dDevice->CreateShaderResourceView(crateTex.Get(), &srvDesc, hDescriptor);
 //
-//	// next descriptor
-//	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+//    // next descriptor
+//    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 //
-//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-//	srvDesc.TextureCube.MostDetailedMip = 0;
-//	srvDesc.TextureCube.MipLevels = skyTex->GetDesc().MipLevels;
-//	srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-//	srvDesc.Format = skyTex->GetDesc().Format;
-//	md3dDevice->CreateShaderResourceView(skyTex.Get(), &srvDesc, hDescriptor);
-//	
-//	mSkyTexHeapIndex = 3;
+//    srvDesc.Format = defaultTex->GetDesc().Format;
+//    srvDesc.Texture2D.MipLevels = defaultTex->GetDesc().MipLevels;
+//    md3dDevice->CreateShaderResourceView(defaultTex.Get(), &srvDesc, hDescriptor);
 //}
 //
-//void CubeMapApp::BuildShadersAndInputLayout()
+//void QuatApp::BuildShadersAndInputLayout()
 //{
 //	const D3D_SHADER_MACRO alphaTestDefines[] =
 //	{
@@ -612,12 +644,9 @@
 //		NULL, NULL
 //	};
 //
-//	mShaders["standardVS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 18 Cube Mapping\\CubeMap\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-//	mShaders["opaquePS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 18 Cube Mapping\\CubeMap\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
+//	mShaders["standardVS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 22 Quaternions\\QuatDemo\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
+//	mShaders["opaquePS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 22 Quaternions\\QuatDemo\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
 //	
-//	mShaders["skyVS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 18 Cube Mapping\\CubeMap\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
-//	mShaders["skyPS"] = d3dUtil::CompileShader(L"E:\\DX12Book\\DX12LearnProject\\DX12Learn\\LearnDemo\\Chapter 18 Cube Mapping\\CubeMap\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
-//
 //    mInputLayout =
 //    {
 //        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -626,7 +655,7 @@
 //    };
 //}
 //
-//void CubeMapApp::BuildShapeGeometry()
+//void QuatApp::BuildShapeGeometry()
 //{
 //    GeometryGenerator geoGen;
 //	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
@@ -750,13 +779,13 @@
 //	mGeometries[geo->Name] = std::move(geo);
 //}
 //
-//void CubeMapApp::BuildSkullGeometry()
+//void QuatApp::BuildSkullGeometry()
 //{
-//    std::ifstream fin("E:/DX12Book/DX12LearnProject/DX12Learn/LearnDemo/Chapter 18 Cube Mapping/CubeMap/Models/skull.txt");
+//    std::ifstream fin("E:/DX12Book/DX12LearnProject/DX12Learn/LearnDemo/Chapter 22 Quaternions/QuatDemo/Models/skull.txt");
 //
-//    if (!fin)
+//    if(!fin)
 //    {
-//        MessageBox(0, L"E:/DX12Book/DX12LearnProject/DX12Learn/LearnDemo/Chapter 18 Cube Mapping/CubeMap/Models/skull.txt not found.", 0, 0);
+//        MessageBox(0, L"E:/DX12Book/DX12LearnProject/DX12Learn/LearnDemo/Chapter 22 Quaternions/QuatDemo/Models/skull.txt not found.", 0, 0);
 //        return;
 //    }
 //
@@ -775,14 +804,29 @@
 //    XMVECTOR vMax = XMLoadFloat3(&vMaxf3);
 //
 //    std::vector<Vertex> vertices(vcount);
-//    for (UINT i = 0; i < vcount; ++i)
+//    for(UINT i = 0; i < vcount; ++i)
 //    {
 //        fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
 //        fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
 //
-//        vertices[i].TexC = { 0.0f, 0.0f };
-//
 //        XMVECTOR P = XMLoadFloat3(&vertices[i].Pos);
+//
+//        // Project point onto unit sphere and generate spherical texture coordinates.
+//        XMFLOAT3 spherePos;
+//        XMStoreFloat3(&spherePos, XMVector3Normalize(P));
+//
+//        float theta = atan2f(spherePos.z, spherePos.x);
+//
+//        // Put in [0, 2pi].
+//        if(theta < 0.0f)
+//            theta += XM_2PI;
+//
+//        float phi = acosf(spherePos.y);
+//
+//        float u = theta / (2.0f*XM_PI);
+//        float v = phi / XM_PI;
+//
+//        vertices[i].TexC = { u, v };
 //
 //        vMin = XMVectorMin(vMin, P);
 //        vMax = XMVectorMax(vMax, P);
@@ -797,7 +841,7 @@
 //    fin >> ignore;
 //
 //    std::vector<std::int32_t> indices(3 * tcount);
-//    for (UINT i = 0; i < tcount; ++i)
+//    for(UINT i = 0; i < tcount; ++i)
 //    {
 //        fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
 //    }
@@ -843,7 +887,7 @@
 //    mGeometries[geo->Name] = std::move(geo);
 //}
 //
-//void CubeMapApp::BuildPSOs()
+//void QuatApp::BuildPSOs()
 //{
 //    D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 //
@@ -874,155 +918,108 @@
 //	opaquePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
 //	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
 //    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
-//
-//	//
-//	// PSO for sky.
-//	//
-//	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
-//
-//	// The camera is inside the sky sphere, so just turn off culling.
-//    // 摄像机位于天空球内，所以要关闭剔除功能
-//	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-//
-//	// Make sure the depth function is LESS_EQUAL and not just LESS.  
-//	// Otherwise, the normalized depth values at z = 1 (NDC) will 
-//	// fail the depth test if the depth buffer was cleared to 1.
-//    // 确认深度测试函数为LESS_EQUAL而非仅为LESS。否则的话，如果深度缓冲区中的数据都被清理为1，
-//    // 则归一化深度值为z = 1 (NDC，用规格化设备坐标所表示)的深度项将在深度测试中失败
-//	skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-//	skyPsoDesc.pRootSignature = mRootSignature.Get();
-//	skyPsoDesc.VS =
-//	{
-//		reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()),
-//		mShaders["skyVS"]->GetBufferSize()
-//	};
-//	skyPsoDesc.PS =
-//	{
-//		reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()),
-//		mShaders["skyPS"]->GetBufferSize()
-//	};
-//	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
-//
 //}
 //
-//void CubeMapApp::BuildFrameResources()
+//void QuatApp::BuildFrameResources()
 //{
 //    for(int i = 0; i < gNumFrameResources; ++i)
 //    {
-//        mFrameResources.push_back(std::make_unique<CMFrameResource>(md3dDevice.Get(),
+//        mFrameResources.push_back(std::make_unique<QuatFrameResource>(md3dDevice.Get(),
 //            1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
 //    }
 //}
 //
-//void CubeMapApp::BuildMaterials()
+//void QuatApp::BuildMaterials()
 //{
-//    auto bricks0 = std::make_unique<Material>();
-//    bricks0->Name = "bricks0";
-//    bricks0->MatCBIndex = 0;
-//    bricks0->DiffuseSrvHeapIndex = 0;
-//    bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+//	auto bricks0 = std::make_unique<Material>();
+//	bricks0->Name = "bricks0";
+//	bricks0->MatCBIndex = 0;
+//	bricks0->DiffuseSrvHeapIndex = 0;
+//	bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 //    bricks0->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 //    bricks0->Roughness = 0.3f;
 //
-//    auto tile0 = std::make_unique<Material>();
-//    tile0->Name = "tile0";
-//    tile0->MatCBIndex = 1;
-//    tile0->DiffuseSrvHeapIndex = 1;
+//	auto stone0 = std::make_unique<Material>();
+//	stone0->Name = "stone0";
+//	stone0->MatCBIndex = 1;
+//	stone0->DiffuseSrvHeapIndex = 1;
+//	stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+//    bricks0->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+//    bricks0->Roughness = 0.3f;
+// 
+//	auto tile0 = std::make_unique<Material>();
+//	tile0->Name = "tile0";
+//	tile0->MatCBIndex = 2;
+//	tile0->DiffuseSrvHeapIndex = 2;
 //    tile0->DiffuseAlbedo = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 //    tile0->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
 //    tile0->Roughness = 0.1f;
 //
-//    auto mirror0 = std::make_unique<Material>();
-//    mirror0->Name = "mirror0";
-//    mirror0->MatCBIndex = 2;
-//    mirror0->DiffuseSrvHeapIndex = 2;
-//    mirror0->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 0.1f, 1.0f);
-//    mirror0->FresnelR0 = XMFLOAT3(0.98f, 0.97f, 0.95f);
-//    mirror0->Roughness = 0.1f;
+//	auto crate0 = std::make_unique<Material>();
+//	crate0->Name = "crate0";
+//	crate0->MatCBIndex = 3;
+//	crate0->DiffuseSrvHeapIndex = 3;
+//	crate0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+//	crate0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+//	crate0->Roughness = 0.7f;
 //
 //    auto skullMat = std::make_unique<Material>();
 //    skullMat->Name = "skullMat";
-//    skullMat->MatCBIndex = 3;
-//    skullMat->DiffuseSrvHeapIndex = 2;
-//    skullMat->DiffuseAlbedo = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+//    skullMat->MatCBIndex = 4;
+//    skullMat->DiffuseSrvHeapIndex = 4;
+//    skullMat->DiffuseAlbedo = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 //    skullMat->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
 //    skullMat->Roughness = 0.2f;
-//
-//    auto sky = std::make_unique<Material>();
-//    sky->Name = "sky";
-//    sky->MatCBIndex = 4;
-//    sky->DiffuseSrvHeapIndex = 3;
-//    sky->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-//    sky->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-//    sky->Roughness = 1.0f;
-//
-//    mMaterials["bricks0"] = std::move(bricks0);
-//    mMaterials["tile0"] = std::move(tile0);
-//    mMaterials["mirror0"] = std::move(mirror0);
+//	
+//	mMaterials["bricks0"] = std::move(bricks0);
+//	mMaterials["stone0"] = std::move(stone0);
+//	mMaterials["tile0"] = std::move(tile0);
+//	mMaterials["crate0"] = std::move(crate0);
 //    mMaterials["skullMat"] = std::move(skullMat);
-//    mMaterials["sky"] = std::move(sky);
 //}
 //
-//void CubeMapApp::BuildRenderItems()
+//void QuatApp::BuildRenderItems()
 //{
-//	auto skyRitem = std::make_unique<RenderItem>();
-//	XMStoreFloat4x4(&skyRitem->World, XMMatrixScaling(5000.0f, 5000.0f, 5000.0f));
-//	skyRitem->TexTransform = MathHelper::Identity4x4();
-//	skyRitem->ObjCBIndex = 0;
-//	skyRitem->Mat = mMaterials["sky"].get();
-//	skyRitem->Geo = mGeometries["shapeGeo"].get();
-//	skyRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//	skyRitem->IndexCount = skyRitem->Geo->DrawArgs["sphere"].IndexCount;
-//	skyRitem->StartIndexLocation = skyRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-//	skyRitem->BaseVertexLocation = skyRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-//
-//	mRitemLayer[(int)RenderLayer::Sky].push_back(skyRitem.get());
-//	mAllRitems.push_back(std::move(skyRitem));
-//
-//	auto boxRitem = std::make_unique<RenderItem>();
-//	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 1.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f));
-//	XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-//	boxRitem->ObjCBIndex = 1;
-//	boxRitem->Mat = mMaterials["bricks0"].get();
-//	boxRitem->Geo = mGeometries["shapeGeo"].get();
-//	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
-//	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
-//	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
-//
-//	mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem.get());
-//	mAllRitems.push_back(std::move(boxRitem));
-//
 //    auto skullRitem = std::make_unique<RenderItem>();
-//    XMStoreFloat4x4(&skullRitem->World, XMMatrixScaling(0.4f, 0.4f, 0.4f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+//    XMStoreFloat4x4(&skullRitem->World,
+//        XMMatrixScaling(0.5f, 0.5f, 0.5f)*XMMatrixTranslation(0.0f, 1.0f, 0.0f));
 //    skullRitem->TexTransform = MathHelper::Identity4x4();
-//    skullRitem->ObjCBIndex = 2;
+//    skullRitem->ObjCBIndex = 0;
 //    skullRitem->Mat = mMaterials["skullMat"].get();
 //    skullRitem->Geo = mGeometries["skullGeo"].get();
 //    skullRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 //    skullRitem->IndexCount = skullRitem->Geo->DrawArgs["skull"].IndexCount;
 //    skullRitem->StartIndexLocation = skullRitem->Geo->DrawArgs["skull"].StartIndexLocation;
 //    skullRitem->BaseVertexLocation = skullRitem->Geo->DrawArgs["skull"].BaseVertexLocation;
-//
-//    mRitemLayer[(int)RenderLayer::Opaque].push_back(skullRitem.get());
+//    mSkullRitem = skullRitem.get();
 //    mAllRitems.push_back(std::move(skullRitem));
+//
+//	auto boxRitem = std::make_unique<RenderItem>();
+//	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(3.0f, 1.0f, 3.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+//	XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+//	boxRitem->ObjCBIndex = 1;
+//	boxRitem->Mat = mMaterials["stone0"].get();
+//	boxRitem->Geo = mGeometries["shapeGeo"].get();
+//	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+//	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
+//	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+//	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
+//	mAllRitems.push_back(std::move(boxRitem));
 //
 //    auto gridRitem = std::make_unique<RenderItem>();
 //    gridRitem->World = MathHelper::Identity4x4();
 //	XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-//	gridRitem->ObjCBIndex = 3;
+//	gridRitem->ObjCBIndex = 2;
 //	gridRitem->Mat = mMaterials["tile0"].get();
 //	gridRitem->Geo = mGeometries["shapeGeo"].get();
 //	gridRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 //    gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
 //    gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 //    gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
-//
-//	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 //	mAllRitems.push_back(std::move(gridRitem));
 //
 //	XMMATRIX brickTexTransform = XMMatrixScaling(1.5f, 2.0f, 1.0f);
-//	UINT objCBIndex = 4;
+//	UINT objCBIndex = 3;
 //	for(int i = 0; i < 5; ++i)
 //	{
 //		auto leftCylRitem = std::make_unique<RenderItem>();
@@ -1059,7 +1056,7 @@
 //		XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
 //		leftSphereRitem->TexTransform = MathHelper::Identity4x4();
 //		leftSphereRitem->ObjCBIndex = objCBIndex++;
-//		leftSphereRitem->Mat = mMaterials["mirror0"].get();
+//		leftSphereRitem->Mat = mMaterials["stone0"].get();
 //		leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
 //		leftSphereRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 //		leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
@@ -1069,26 +1066,25 @@
 //		XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
 //		rightSphereRitem->TexTransform = MathHelper::Identity4x4();
 //		rightSphereRitem->ObjCBIndex = objCBIndex++;
-//		rightSphereRitem->Mat = mMaterials["mirror0"].get();
+//		rightSphereRitem->Mat = mMaterials["stone0"].get();
 //		rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
 //		rightSphereRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 //		rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
 //		rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
 //		rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 //
-//		mRitemLayer[(int)RenderLayer::Opaque].push_back(leftCylRitem.get());
-//		mRitemLayer[(int)RenderLayer::Opaque].push_back(rightCylRitem.get());
-//		mRitemLayer[(int)RenderLayer::Opaque].push_back(leftSphereRitem.get());
-//		mRitemLayer[(int)RenderLayer::Opaque].push_back(rightSphereRitem.get());
-//
 //		mAllRitems.push_back(std::move(leftCylRitem));
 //		mAllRitems.push_back(std::move(rightCylRitem));
 //		mAllRitems.push_back(std::move(leftSphereRitem));
 //		mAllRitems.push_back(std::move(rightSphereRitem));
 //	}
+//
+//	// All the render items are opaque.
+//	for(auto& e : mAllRitems)
+//		mOpaqueRitems.push_back(e.get());
 //}
 //
-//void CubeMapApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+//void QuatApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 //{
 //    UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 // 
@@ -1105,13 +1101,16 @@
 //
 //        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex*objCBByteSize;
 //
+//		// CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+//		// tex.Offset(ri->Mat->DiffuseSrvHeapIndex, mCbvSrvDescriptorSize);
+//
 //		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 //
 //        cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 //    }
 //}
 //
-//std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CubeMapApp::GetStaticSamplers()
+//std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> QuatApp::GetStaticSamplers()
 //{
 //	// Applications usually only need a handful of samplers.  So just define them all up front
 //	// and keep them available as part of the root signature.  

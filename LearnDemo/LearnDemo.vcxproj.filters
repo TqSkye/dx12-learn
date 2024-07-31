@@ -204,6 +204,60 @@
     <ClCompile Include="Chapter 18 Cube Mapping\DynamicCube\DCFrameResource.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Chapter 19 Normal Mapping\NormalMap\NormalFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 19 Normal Mapping\NormalMap\NormalMapApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 20 Shadow Mapping\Shadows\ShadowFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 20 Shadow Mapping\Shadows\ShadowMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 20 Shadow Mapping\Shadows\ShadowMapApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 21 Ambient Occlusion\Ssao\SsaoFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 21 Ambient Occlusion\Ssao\SsaoShadowMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 21 Ambient Occlusion\Ssao\Ssao.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 21 Ambient Occlusion\Ssao\SsaoApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 22 Quaternions\QuatDemo\AnimationHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 22 Quaternions\QuatDemo\QuatFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 22 Quaternions\QuatDemo\QuatApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\AnimFrameResource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\LoadM3d.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\AnimShadowMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\SkinnedData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\SkinnedMeshApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Chapter 23 Character Animation\SkinnedMesh\AnimSsao.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Camera.h">
@@ -332,6 +386,45 @@
     <ClInclude Include="Chapter 18 Cube Mapping\DynamicCube\CubeRenderTarget.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Chapter 19 Normal Mapping\NormalMap\NormalFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 20 Shadow Mapping\Shadows\ShadowFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 20 Shadow Mapping\Shadows\ShadowMap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 21 Ambient Occlusion\Ssao\SsaoFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 21 Ambient Occlusion\Ssao\SsaoShadowMap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 21 Ambient Occlusion\Ssao\Ssao.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 22 Quaternions\QuatDemo\AnimationHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 22 Quaternions\QuatDemo\QuatFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 23 Character Animation\SkinnedMesh\AnimFrameResource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 23 Character Animation\SkinnedMesh\LoadM3d.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 23 Character Animation\SkinnedMesh\AnimShadowMap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 23 Character Animation\SkinnedMesh\SkinnedData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Chapter 23 Character Animation\SkinnedMesh\AnimSsao.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Box\Shaders\color_ps.cso" />
@@ -387,6 +480,37 @@
     <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\Default.hlsl" />
     <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\LightingUtil.hlsl" />
     <None Include="Chapter 18 Cube Mapping\DynamicCube\Shaders\Sky.hlsl" />
+    <None Include="Chapter 19 Normal Mapping\NormalMap\Shaders\Common.hlsl" />
+    <None Include="Chapter 19 Normal Mapping\NormalMap\Shaders\Default.hlsl" />
+    <None Include="Chapter 19 Normal Mapping\NormalMap\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 19 Normal Mapping\NormalMap\Shaders\Sky.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\Common.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\Default.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\ShadowDebug.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\Shadows.hlsl" />
+    <None Include="Chapter 20 Shadow Mapping\Shadows\Shaders\Sky.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\Common.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\Default.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\DrawNormals.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\ShadowDebug.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\Shadows.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\Sky.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\Ssao.hlsl" />
+    <None Include="Chapter 21 Ambient Occlusion\Ssao\Shaders\SsaoBlur.hlsl" />
+    <None Include="Chapter 22 Quaternions\QuatDemo\Shaders\Default.hlsl" />
+    <None Include="Chapter 22 Quaternions\QuatDemo\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Models\soldier.m3d" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\Common.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\Default.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\DrawNormals.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\LightingUtil.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\ShadowDebug.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\Shadows.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\Sky.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\Ssao.hlsl" />
+    <None Include="Chapter 23 Character Animation\SkinnedMesh\Shaders\SsaoBlur.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LitColumns\Models\skull.txt" />
@@ -402,5 +526,11 @@
     <Text Include="Chapter 18 Cube Mapping\CubeMap\Models\skull.txt" />
     <Text Include="Chapter 18 Cube Mapping\DynamicCube\Models\car.txt" />
     <Text Include="Chapter 18 Cube Mapping\DynamicCube\Models\skull.txt" />
+    <Text Include="Chapter 20 Shadow Mapping\Shadows\Models\car.txt" />
+    <Text Include="Chapter 20 Shadow Mapping\Shadows\Models\skull.txt" />
+    <Text Include="Chapter 21 Ambient Occlusion\Ssao\Models\car.txt" />
+    <Text Include="Chapter 21 Ambient Occlusion\Ssao\Models\skull.txt" />
+    <Text Include="Chapter 22 Quaternions\QuatDemo\Models\car.txt" />
+    <Text Include="Chapter 22 Quaternions\QuatDemo\Models\skull.txt" />
   </ItemGroup>
 </Project>
