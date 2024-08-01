@@ -111,19 +111,26 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 //---------------------------------------------------------------------------------------
 // PCF for shadow mapping.
 //---------------------------------------------------------------------------------------
-
+/*
+    阴影因子（shadow factor）是我们为光照方程新添加的一种范围在[0, 1]的标量系数。
+    其值为0，表示位于阴影中的点；
+    值为1，则代表此点在阴影之外。在进行PCF（20.4.3节）时，一个点可能会部分处于阴影之中，在这种情况下，阴影因子将位于0～1。CalcShadowFactor（计算阴影因子）函数的实现位于Common.hlsl文件之中
+*/
 float CalcShadowFactor(float4 shadowPosH)
 {
     // Complete projection by doing division by w.
+    // 通过除以w来实现投影变换
     shadowPosH.xyz /= shadowPosH.w;
 
     // Depth in NDC space.
+    // NDC空间中的深度值
     float depth = shadowPosH.z;
 
     uint width, height, numMips;
     gShadowMap.GetDimensions(0, width, height, numMips);
 
     // Texel size.
+    // 纹素的大小
     float dx = 1.0f / (float)width;
 
     float percentLit = 0.0f;

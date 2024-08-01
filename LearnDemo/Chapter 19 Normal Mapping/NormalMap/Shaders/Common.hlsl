@@ -86,14 +86,16 @@ cbuffer cbPass : register(b1)
 };
 
 //---------------------------------------------------------------------------------------
-// Transforms a normal map sample to world space.
+// Transforms a normal map sample to world space. 将一个法线图样本变换至世界空间
 //---------------------------------------------------------------------------------------
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
 {
 	// Uncompress each component from [0,1] to [-1,1].
+    // 将每个坐标分量由范围[0,1]解压至[-1,1]区间
 	float3 normalT = 2.0f*normalMapSample - 1.0f;
 
 	// Build orthonormal basis.
+    // 构建正交规范基
 	float3 N = unitNormalW;
 	float3 T = normalize(tangentW - dot(tangentW, N)*N);
 	float3 B = cross(N, T);
@@ -101,6 +103,7 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 	float3x3 TBN = float3x3(T, B, N);
 
 	// Transform from tangent space to world space.
+    // 将法线图样本从切线空间变换到世界空间
 	float3 bumpedNormalW = mul(normalT, TBN);
 
 	return bumpedNormalW;
